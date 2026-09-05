@@ -109,10 +109,11 @@ Start the FastAPI development server with:
 
 ```bash
 uv run fastapi dev src/todo_backend/main.py
+```
 
 ---
 
-## 📁 Project Structure
+## 6 Project Structure
 
 ```text
 todo_backend/
