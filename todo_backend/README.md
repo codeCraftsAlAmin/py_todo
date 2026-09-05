@@ -118,33 +118,34 @@ uv run fastapi dev src/todo_backend/main.py
 ```text
 todo_backend/
 │
-├── src/
-│   └── todo_backend/
+├── app/
+│   ├── __init__.py
+│   ├── main.py
+│   │
+│   ├── config/
+│   │   ├── __init__.py
+│   │   ├── database.py
+│   │   ├── settings.py
+│   │   └── dependencies.py
+│   │
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── user.py
+│   │   └── todo.py
+│   │
+│   ├── schemas/
+│   │   ├── __init__.py
+│   │   ├── user.py
+│   │   └── todo.py
+│   │
+│   ├── routers/
+│   │   ├── __init__.py
+│   │   ├── auth.py
+│   │   └── todos.py
+│   │
+│   └── services/
 │       ├── __init__.py
-│       ├── main.py
-│       │
-│       ├── config/
-│       │   ├── __init__.py
-│       │   ├── database.py
-│       │   ├── settings.py
-│       │   └── dependencies.py
-│       │
-│       ├── models/
-│       │   ├── __init__.py
-│       │   └── user.py
-│       │
-│       ├── schemas/
-│       │   ├── __init__.py
-│       │   └── user.py
-│       │
-│       ├── routers/
-│       │   ├── __init__.py
-│       │   ├── auth.py
-│       │   └── todos.py
-│       │
-│       └── services/
-│           ├── __init__.py
-│           └── security.py
+│       └── security.py
 │
 ├── .env
 ├── .env.example
