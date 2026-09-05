@@ -124,6 +124,7 @@ todo_backend/
 │   │
 │   ├── config/
 │   │   ├── __init__.py
+|   |   ├── settings.py
 │   │   ├── database.py
 │   │   ├── settings.py
 │   │   └── dependencies.py
@@ -192,3 +193,27 @@ todo_backend/
         ↓
 16. Testing
 ```
+
+---
+
+## 8 Database Setup
+
+To install SQLAlchemy:
+
+```bash
+uv add sqlalchemy
+```
+
+If you want to use DB PostgreSQL:
+
+```bash
+uv add psycopg[binary]
+```
+
+Use pydantic-settings for application configuration validate/manage
+
+```bash
+uv add pydantic-settings
+```
+
+---
