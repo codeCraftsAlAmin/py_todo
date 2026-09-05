@@ -108,7 +108,7 @@ If all three commands return a version number, your development environment is r
 Start the FastAPI development server with:
 
 ```bash
-uv run fastapi dev src/todo_backend/main.py
+uv run fastapi dev
 ```
 
 ---
@@ -153,3 +153,42 @@ todo_backend/
 ├── pyproject.toml
 ├── uv.lock
 └── README.md
+```
+
+---
+
+## 7 Roadmap
+
+```text
+1. Project configuration
+        ↓
+2. Database setup
+        ↓
+3. User model
+        ↓
+4. Pydantic schemas
+        ↓
+5. User registration
+        ↓
+6. Password hashing
+        ↓
+7. Login + Access Token
+        ↓
+8. Current-user dependency
+        ↓
+9. Refresh Token
+        ↓
+10. Role-based authorization
+        ↓
+11. Todo model
+        ↓
+12. Todo CRUD
+        ↓
+13. User ↔ Todo ownership
+        ↓
+14. Error handling
+        ↓
+15. Security improvements
+        ↓
+16. Testing
+```
