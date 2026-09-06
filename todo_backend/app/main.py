@@ -1,8 +1,12 @@
 from fastapi import FastAPI
 
+from app.config.database import Base, engine
 from app.config.settings import envVars
 
 app = FastAPI()
+
+# db connection
+Base.metadata.create_all(bind=engine)
 
 
 @app.get("/")
