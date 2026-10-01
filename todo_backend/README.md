@@ -86,7 +86,7 @@ If you want to use DB PostgreSQL:
 uv add psycopg[binary]
 ```
 
-Use pydantic-settings for application configuration validate/manage
+Use pydantic-settings for application configuration validate/manage:
 
 ```
 uv add pydantic-settings
