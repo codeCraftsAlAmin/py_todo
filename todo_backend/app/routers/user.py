@@ -24,7 +24,7 @@ async def create_user(user: UserCreate, db: SessionDep):
     return user_data
 
 
-@router.get("/", response_model=list[UserResponse])
+@router.get("/", response_model=list[UserResponse], status_code=status.HTTP_200_OK)
 async def read_users(db: SessionDep, skip: int = 0, limit: int = 100):
     users = db.query(User).offset(skip).limit(limit).all()
     return users
