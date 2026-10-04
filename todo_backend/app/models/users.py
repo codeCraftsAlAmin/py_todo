@@ -1,4 +1,4 @@
-from sqlalchemy import TIMESTAMP, Boolean, Column, Integer, String, func, text
+from sqlalchemy import TIMESTAMP, Boolean, Column, Integer, String, func
 
 from ..config.db import Base
 
@@ -11,7 +11,5 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     is_deleted = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
-    created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"))
-    updated_at = Column(
-        TIMESTAMP(timezone=True), server_default=text("now()"), onupdate=func.now()
-    )
+    created_at = Column(TIMESTAMP, server_default=func.now())
+    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())

@@ -1,13 +1,13 @@
 from fastapi import FastAPI
 
-from . import models
-from .config.db import engine
+from .config.db import Base, engine
+from .models import users  # noqa: F401
 from .routers import user
 
 app = FastAPI()
 
 # db connection
-models.Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 app.include_router(user.router)
 
