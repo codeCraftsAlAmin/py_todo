@@ -1,15 +1,15 @@
 from fastapi import FastAPI
 
 from .config.db import Base, engine
-from .models import users  # noqa: F401
-from .routers import user
+from .models import users_model  # noqa: F401
+from .routers import user_router
 
 app = FastAPI()
 
 # db connection
 Base.metadata.create_all(bind=engine)
 
-app.include_router(user.router)
+app.include_router(user_router.router)
 
 
 @app.get("/")
