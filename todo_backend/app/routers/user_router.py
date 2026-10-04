@@ -3,25 +3,24 @@ from fastapi import APIRouter, HTTPException, status
 from ..config.dependencies import SessionDep
 from ..models.users_model import User
 from ..schemas.users_schema import UserCreate, UserResponse
+from ..services import user_service
 
 router = APIRouter(prefix="/users", tags=["users"])
+
 
 # create user
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(user: UserCreate, db: SessionDep):
+    try:
+        create_user_service = user_service.UserService(db)
+        user_data = await create_user_service.create_user(user)
+        return user_data
 
-    user_exist = db.query(User).filter(User.email == user.email).first()
+    except KeyError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, details="Item couldn't be found"
+        )
 
-    if user_exist:
-        raise HTTPException(status_code=400, detail="Email already registered")
-
-    user_data = User(**user.model_dump())
-
-    db.add(user_data)
-    db.commit()
-    db.refresh(user_data)
-
-    return user_data
 
 # get users
 @router.get("/", response_model=list[UserResponse], status_code=status.HTTP_200_OK)
