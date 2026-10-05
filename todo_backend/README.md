@@ -38,29 +38,35 @@ todo_backend/
 │   │
 │   ├── config/
 │   │   ├── __init__.py
-|   |   ├── settings.py
-│   │   ├── database.py
-│   │   ├── settings.py
-│   │   └── dependencies.py
+|   |   ├── db.py
+│   │   ├── dpendencies.py
+│   │   ├── exceptions.py
+│   │   └── settings.py
 │   │
 │   ├── models/
 │   │   ├── __init__.py
-│   │   ├── user.py
-│   │   └── todo.py
+│   │   ├── todos_model.py
+│   │   └── users_model.py
 │   │
 │   ├── schemas/
 │   │   ├── __init__.py
-│   │   ├── user.py
-│   │   └── todo.py
+│   │   ├── users_schema.py
+│   │   └── todos_schema.py
 │   │
 │   ├── routers/
 │   │   ├── __init__.py
-│   │   ├── auth.py
-│   │   └── todos.py
+│   │   ├── todo_router.py
+│   │   └── user_router.py
 │   │
-│   └── services/
+│   ├── services/
+│   │  ├── __init__.py
+│   │  ├── todo_serivce.py
+│   │  └── user_service.py
+│   │
+│   └── repositroy/
 │       ├── __init__.py
-│       └── security.py
+│       ├── todo_repository.py
+│       └── user_repository.py
 │
 ├── .env
 ├── .env.example

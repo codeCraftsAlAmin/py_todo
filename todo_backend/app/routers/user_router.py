@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, status
 
 from ..config.dependencies import SessionDep
 from ..models.users_model import User
@@ -11,15 +11,8 @@ router = APIRouter(prefix="/users", tags=["users"])
 # create user
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(user: UserCreate, db: SessionDep):
-    try:
-        create_user_service = user_service.UserService(db)
-        user_data = await create_user_service.create_user(user)
-        return user_data
-
-    except KeyError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, details="Item couldn't be found"
-        )
+    create_user_service = user_service.UserService(db)
+    return await create_user_service.create_user(user)
 
 
 # get users
