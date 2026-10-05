@@ -16,3 +16,6 @@ class UserService:
             raise UserAlreadyExistsError(email=user.email)
 
         return self.user_repo.create(user=user)
+
+    def read_user(self, skip: int = 0, limit: int = 100) -> list[User]:
+        return self.user_repo.read(skip=skip, limit=limit)
