@@ -92,8 +92,24 @@ If you want to use DB PostgreSQL:
 uv add psycopg[binary]
 ```
 
+---
+
+## Other packages
+
 Use pydantic-settings for application configuration validate/manage:
 
 ```
 uv add pydantic-settings
+```
+
+To add pagination:
+
+```
+pip install fastapi-pagination
+```
+
+OR, if the first one doesn't work
+
+```
+uv add fastapi-pagination
 ```
