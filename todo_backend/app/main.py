@@ -3,6 +3,7 @@ import logging
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from fastapi_pagination import add_pagination
 
 from .config.db import Base, engine
 from .config.exceptions import UserAlreadyExistsError
@@ -10,6 +11,7 @@ from .models import users_model  # noqa: F401
 from .routers import user_router
 
 app = FastAPI()
+add_pagination(app)
 
 # login setup for finding out the error
 logging.basicConfig(level=logging.INFO)

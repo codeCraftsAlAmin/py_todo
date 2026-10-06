@@ -1,4 +1,5 @@
 from fastapi import APIRouter, status
+from fastapi_pagination import Page
 
 from ..config.dependencies import SessionDep
 
@@ -21,10 +22,10 @@ def create_user(user: UserCreate, db: SessionDep):
 
 
 # get users
-@router.get("/", response_model=list[UserResponse], status_code=status.HTTP_200_OK)
-def read_users(db: SessionDep, skip: int = 0, limit: int = 100):
+@router.get("/", response_model=Page[UserResponse], status_code=status.HTTP_200_OK)
+def read_users(db: SessionDep):
 
     user_repo = UserRepository(db)
 
     read_user_data = user_service.UserService(user_repo)
-    return read_user_data.read_user(skip=skip, limit=limit)
+    return read_user_data.read_user()

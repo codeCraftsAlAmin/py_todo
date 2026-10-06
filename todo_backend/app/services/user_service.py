@@ -1,3 +1,5 @@
+from fastapi_pagination import Page
+
 from ..config.exceptions import UserAlreadyExistsError
 from ..models.users_model import User
 from ..repositories.user_repository import UserRepository
@@ -17,5 +19,5 @@ class UserService:
 
         return self.user_repo.create(user=user)
 
-    def read_user(self, skip: int = 0, limit: int = 100) -> list[User]:
-        return self.user_repo.read(skip=skip, limit=limit)
+    def read_user(self) -> Page[User]:
+        return self.user_repo.read()
