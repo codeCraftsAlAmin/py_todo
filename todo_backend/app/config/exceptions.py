@@ -1,4 +1,6 @@
-from fastapi import status
+from fastapi import FastAPI, Request, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 
 
 class BaseAppException(Exception):
@@ -21,4 +23,24 @@ class UserNotFoundError(BaseAppException):
         super().__init__(
             message=f"User with ID {id} not found",
             status_code=status.HTTP_404_NOT_FOUND,
+        )
+
+
+def register_exception_handlers(app: FastAPI) -> None:
+    # handle server error
+    @app.exception_handler(BaseAppException)
+    async def user_already_exists_handler(request: Request, exc: BaseAppException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"details": exc.message},
+        )
+
+    # handle input error
+    @app.exception_handler(RequestValidationError)
+    async def validation_exception_handler(
+        request: Request, exc: RequestValidationError
+    ):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content="Input validation failed",
         )
