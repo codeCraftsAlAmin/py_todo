@@ -40,6 +40,7 @@ todo_backend/
 │   │   ├── __init__.py
 |   |   ├── db.py
 │   │   ├── dpendencies.py
+│   │   ├── security.py
 │   │   ├── exceptions.py
 │   │   └── settings.py
 │   │

@@ -1,6 +1,7 @@
 from fastapi_pagination import Page
 
 from ..config.exceptions import UserAlreadyExistsError
+from ..config.security import hash_password
 from ..models.users_model import User
 from ..repositories.user_repository import UserRepository
 from ..schemas.users_schema import UserCreate
@@ -10,14 +11,20 @@ class UserService:
     def __init__(self, user_repo: UserRepository):
         self.user_repo = user_repo
 
-    def create_user(self, user: UserCreate) -> User:
+    def create_user(self, user_data: UserCreate) -> User:
 
-        user_exist = self.user_repo.get_by_email(user.email)
+        user_exist = self.user_repo.get_by_email(user_data.email)
 
         if user_exist:
-            raise UserAlreadyExistsError(email=user.email)
+            raise UserAlreadyExistsError(email=user_data.email)
 
-        return self.user_repo.create(user=user)
+        hashed_pw = hash_password(user_data.password)
+
+        user_dic = user_data.model_dump(exclude={"password"})
+        user_dic["hashed_password"] = hashed_pw
+
+        db_user = User(**user_dic)
+        return self.user_repo.create(user=db_user)
 
     def read_user(self) -> Page[User]:
         return self.user_repo.read()

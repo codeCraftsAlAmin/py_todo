@@ -11,7 +11,7 @@ class UserBase(BaseModel):
 
 # Used for registration/creation (Incoming Request)
 class UserCreate(UserBase):
-    hashed_password: str = Field(..., min_length=8, description="password")
+    password: str = Field(..., min_length=8, description="password")
 
 
 # Used for API responses (Outgoing Data)

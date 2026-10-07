@@ -2,8 +2,6 @@ from fastapi import APIRouter, status
 from fastapi_pagination import Page
 
 from ..config.dependencies import SessionDep
-
-# from ..models.users_model import User
 from ..repositories.user_repository import UserRepository
 from ..schemas.users_schema import UserCreate, UserResponse
 from ..services import user_service
