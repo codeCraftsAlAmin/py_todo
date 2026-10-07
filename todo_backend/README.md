@@ -109,8 +109,14 @@ To add pagination:
 pip install fastapi-pagination
 ```
 
-OR, if the first one doesn't work
+OR, if the first one doesn't work:
 
 ```
 uv add fastapi-pagination
+```
+
+To hash password:
+
+```
+uv add pyjwt
 ```
