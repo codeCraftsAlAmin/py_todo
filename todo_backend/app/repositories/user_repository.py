@@ -23,3 +23,6 @@ class UserRepository:
         # user = self.db.query(User).offset(skip).limit(limit).all()
         user = paginate(self.db, self.db.query(User))
         return user
+
+    def get_by_id(self, id: int) -> User | None:
+        return self.db.query(User).filter(User.id == id).first()

@@ -27,3 +27,13 @@ def read_users(db: SessionDep):
 
     read_user_data = user_service.UserService(user_repo)
     return read_user_data.read_user()
+
+
+# get user by id
+@router.get("/{id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
+def get_user_by_id(id: int, db: SessionDep):
+    user_repo = UserRepository(db)
+
+    user_data = user_service.UserService(user_repo)
+
+    return user_data.get_user_by_id(id)

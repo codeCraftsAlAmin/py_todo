@@ -1,6 +1,6 @@
 from fastapi_pagination import Page
 
-from ..config.exceptions import UserAlreadyExistsError
+from ..config.exceptions import UserAlreadyExistsError, UserNotFoundError
 from ..config.security import hash_password
 from ..models.users_model import User
 from ..repositories.user_repository import UserRepository
@@ -28,3 +28,10 @@ class UserService:
 
     def read_user(self) -> Page[User]:
         return self.user_repo.read()
+
+    def get_user_by_id(self, id: int) -> User:
+        user = self.user_repo.get_by_id(id=id)
+        if user is None:
+            raise UserNotFoundError(id=id)
+
+        return user
