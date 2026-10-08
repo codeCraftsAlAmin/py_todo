@@ -40,7 +40,8 @@ def register_exception_handlers(app: FastAPI) -> None:
     async def validation_exception_handler(
         request: Request, exc: RequestValidationError
     ):
+
         return JSONResponse(
-            status_code=exc.status_code,
-            content="Input validation failed",
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            content={"Input validation failed"},
         )

@@ -14,6 +14,10 @@ class UserCreate(UserBase):
     password: str = Field(..., min_length=8, description="password")
 
 
+class UserUpdate(BaseModel):
+    user_name: str | None = Field(None, description="username")
+
+
 # Used for API responses (Outgoing Data)
 class UserResponse(UserBase):
     id: int

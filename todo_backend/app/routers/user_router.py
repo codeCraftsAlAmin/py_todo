@@ -3,7 +3,7 @@ from fastapi_pagination import Page
 
 from ..config.dependencies import SessionDep
 from ..repositories.user_repository import UserRepository
-from ..schemas.users_schema import UserCreate, UserResponse
+from ..schemas.users_schema import UserCreate, UserResponse, UserUpdate
 from ..services import user_service
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -25,8 +25,8 @@ def read_users(db: SessionDep):
 
     user_repo = UserRepository(db)
 
-    read_user_data = user_service.UserService(user_repo)
-    return read_user_data.read_user()
+    read_user_service = user_service.UserService(user_repo)
+    return read_user_service.read_user()
 
 
 # get user by id
@@ -34,9 +34,9 @@ def read_users(db: SessionDep):
 def get_user_by_id(id: int, db: SessionDep):
     user_repo = UserRepository(db)
 
-    user_data = user_service.UserService(user_repo)
+    get_user_service = user_service.UserService(user_repo)
 
-    return user_data.get_user_by_id(id)
+    return get_user_service.get_user_by_id(id)
 
 
 # delete user
@@ -44,6 +44,15 @@ def get_user_by_id(id: int, db: SessionDep):
 def delete_user(id: int, db: SessionDep):
     user_repo = UserRepository(db)
 
-    delete_data = user_service.UserService(user_repo)
-    delete_data.delete_user(id)
+    delete_user_service = user_service.UserService(user_repo)
+    delete_user_service.delete_user(id)
     return {"message": "User deleted successfully"}
+
+
+# update user
+@router.patch("/{id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
+def update_user(id: int, user: UserUpdate, db: SessionDep):
+    user_repo = UserRepository(db)
+    update_user_service = user_service.UserService(user_repo)
+
+    return update_user_service.update_user_info(id=id, user_data=user)

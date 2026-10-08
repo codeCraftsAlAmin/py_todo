@@ -30,3 +30,8 @@ class UserRepository:
     def delete(self, user_data: User):
         self.db.delete(user_data)
         self.db.commit()
+
+    def update(self, user_data: User) -> User:
+        self.db.commit()
+        self.db.refresh(user_data)
+        return user_data

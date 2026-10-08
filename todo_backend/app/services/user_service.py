@@ -4,7 +4,7 @@ from ..config.exceptions import UserAlreadyExistsError, UserNotFoundError
 from ..config.security import hash_password
 from ..models.users_model import User
 from ..repositories.user_repository import UserRepository
-from ..schemas.users_schema import UserCreate
+from ..schemas.users_schema import UserCreate, UserUpdate
 
 
 class UserService:
@@ -42,3 +42,16 @@ class UserService:
             raise UserNotFoundError(id=id)
 
         self.user_repo.delete(user_data=user)
+
+    def update_user_info(self, id: int, user_data: UserUpdate) -> User:
+        user = self.user_repo.get_by_id(id)
+
+        if user is None:
+            raise UserNotFoundError(id=id)
+
+        updated_data = user_data.model_dump(exclude_unset=True)
+
+        for key, value in updated_data.items():
+            setattr(user, key, value)
+
+        return self.user_repo.update(user_data=user)
