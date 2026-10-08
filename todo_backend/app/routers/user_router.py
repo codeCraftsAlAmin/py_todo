@@ -37,3 +37,13 @@ def get_user_by_id(id: int, db: SessionDep):
     user_data = user_service.UserService(user_repo)
 
     return user_data.get_user_by_id(id)
+
+
+# delete user
+@router.delete("/{id}", status_code=status.HTTP_200_OK)
+def delete_user(id: int, db: SessionDep):
+    user_repo = UserRepository(db)
+
+    delete_data = user_service.UserService(user_repo)
+    delete_data.delete_user(id)
+    return {"message": "User deleted successfully"}

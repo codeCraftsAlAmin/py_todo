@@ -35,3 +35,10 @@ class UserService:
             raise UserNotFoundError(id=id)
 
         return user
+
+    def delete_user(self, id: int):
+        user = self.user_repo.get_by_id(id=id)
+        if user is None:
+            raise UserNotFoundError(id=id)
+
+        self.user_repo.delete(user_data=user)

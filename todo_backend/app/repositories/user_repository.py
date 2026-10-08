@@ -26,3 +26,7 @@ class UserRepository:
 
     def get_by_id(self, id: int) -> User | None:
         return self.db.query(User).filter(User.id == id).first()
+
+    def delete(self, user_data: User):
+        self.db.delete(user_data)
+        self.db.commit()
