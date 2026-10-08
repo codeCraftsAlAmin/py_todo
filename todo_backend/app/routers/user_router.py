@@ -6,7 +6,7 @@ from ..repositories.user_repository import UserRepository
 from ..schemas.users_schema import UserCreate, UserResponse, UserUpdate
 from ..services import user_service
 
-router = APIRouter(prefix="/users", tags=["users"])
+router = APIRouter(prefix="/api/users", tags=["users"])
 
 
 # create user
