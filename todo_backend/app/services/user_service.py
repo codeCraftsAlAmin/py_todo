@@ -1,10 +1,14 @@
 from fastapi_pagination import Page
 
-from ..config.exceptions import UserAlreadyExistsError, UserNotFoundError
-from ..config.security import hash_password
+from ..config.exceptions import (
+    PasswordDidntMatch,
+    UserAlreadyExistsError,
+    UserNotFoundError,
+)
+from ..config.security import hash_password, verify_password
 from ..models.users_model import User
 from ..repositories.user_repository import UserRepository
-from ..schemas.users_schema import UserCreate, UserUpdate
+from ..schemas.users_schema import UserChangePassword, UserCreate, UserUpdate
 
 
 class UserService:
@@ -53,5 +57,25 @@ class UserService:
 
         for key, value in updated_data.items():
             setattr(user, key, value)
+
+        return self.user_repo.update(user_data=user)
+
+    def change_password(self, id: int, passwords: UserChangePassword):
+        user = self.get_user_by_id(id=id)
+
+        if user is None:
+            raise UserNotFoundError(id=id)
+
+        is_password_correct = verify_password(
+            plain_password=passwords.old_password, hashed_password=user.hashed_password
+        )
+
+        if not is_password_correct:
+            raise PasswordDidntMatch()
+
+        hash_new_pass = hash_password(password=passwords.new_password)
+
+        # update the new pass in db
+        user.hashed_password = hash_new_pass
 
         return self.user_repo.update(user_data=user)

@@ -3,14 +3,19 @@ from fastapi_pagination import Page
 
 from ..config.dependencies import SessionDep
 from ..repositories.user_repository import UserRepository
-from ..schemas.users_schema import UserCreate, UserResponse, UserUpdate
+from ..schemas.users_schema import (
+    UserChangePassword,
+    UserCreate,
+    UserResponse,
+    UserUpdate,
+)
 from ..services import user_service
 
 router = APIRouter(prefix="/api/users", tags=["users"])
 
 
 # create user
-@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/create", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def create_user(user: UserCreate, db: SessionDep):
 
     user_repo = UserRepository(db)
@@ -40,19 +45,31 @@ def get_user_by_id(id: int, db: SessionDep):
 
 
 # delete user
-@router.delete("/{id}", status_code=status.HTTP_200_OK)
+@router.delete("/{id}/delete-user", status_code=status.HTTP_200_OK)
 def delete_user(id: int, db: SessionDep):
     user_repo = UserRepository(db)
 
     delete_user_service = user_service.UserService(user_repo)
     delete_user_service.delete_user(id)
-    return {"message": "User deleted successfully"}
+    return {"message": "User deleted successfully!"}
 
 
 # update user
-@router.patch("/{id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
+@router.patch(
+    "/{id}/update-profile", response_model=UserResponse, status_code=status.HTTP_200_OK
+)
 def update_user(id: int, user: UserUpdate, db: SessionDep):
     user_repo = UserRepository(db)
     update_user_service = user_service.UserService(user_repo)
 
     return update_user_service.update_user_info(id=id, user_data=user)
+
+
+# change password
+@router.patch("/{id}/change-password", status_code=status.HTTP_200_OK)
+def change_password(id: int, password: UserChangePassword, db: SessionDep):
+    user_repo = UserRepository(db)
+
+    change_password_service = user_service.UserService(user_repo)
+    change_password_service.change_password(id=id, passwords=password)
+    return {"message": "Your password changed successfully!"}

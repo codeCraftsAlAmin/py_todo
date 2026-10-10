@@ -18,6 +18,11 @@ class UserUpdate(BaseModel):
     user_name: str | None = Field(None, description="username")
 
 
+class UserChangePassword(BaseModel):
+    old_password: str = Field(..., min_length=8, description="enter old password")
+    new_password: str = Field(..., min_length=8, description="enter new password")
+
+
 # Used for API responses (Outgoing Data)
 class UserResponse(UserBase):
     id: int

@@ -26,6 +26,14 @@ class UserNotFoundError(BaseAppException):
         )
 
 
+class PasswordDidntMatch(BaseAppException):
+    def __init__(self):
+        super().__init__(
+            message="Your old password didn't match",
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     # handle server error
     @app.exception_handler(BaseAppException)
