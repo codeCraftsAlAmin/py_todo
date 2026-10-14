@@ -23,6 +23,7 @@ Run the project:
 
 ```
 uv run fastapi dev
+uvicorn main:app --reload # after install uvicorn
 ```
 
 ---

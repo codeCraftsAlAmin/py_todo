@@ -12,6 +12,9 @@ from .routers import user_router
 # manage application lifecycles gracefully (Startup and Shutdown events)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
     # startup task
     yield
     # shut down task
@@ -22,9 +25,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Todo Application", version="1.0.0", lifespan=lifespan)
 add_pagination(app)
 
-
-# db connection
-Base.metadata.create_all(bind=engine)
 
 app.include_router(user_router.router)
 

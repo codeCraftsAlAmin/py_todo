@@ -11,6 +11,7 @@ engine = create_async_engine(
     pool_size=20,  # how many pool will stay open at a time
     max_overflow=10,  # allows up to 10 extra temporary connections during sudden traffic spikes
     pool_pre_ping=True,  # check auto re-connect db after every 30mins that prevents memory leaks
+    connect_args={"ssl": "require"},
 )
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,
