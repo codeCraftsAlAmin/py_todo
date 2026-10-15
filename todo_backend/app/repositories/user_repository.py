@@ -1,5 +1,6 @@
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate
+from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -20,8 +21,9 @@ class UserRepository:
             await self.db.commit()
             await self.db.refresh(user)
             return user
-        except Exception:
+        except Exception as e:
             await self.db.rollback()
+            logger.error(f"Failed to create user. Error: {e}")
             raise
 
     async def read(self) -> Page[User]:
@@ -37,8 +39,9 @@ class UserRepository:
         try:
             await self.db.delete(user_data)
             await self.db.commit()
-        except Exception:
+        except Exception as e:
             await self.db.rollback()
+            logger.error(f"Failed to delete user. Error: {e}")
             raise
 
     async def update(self, user_data: User) -> User:
@@ -46,6 +49,7 @@ class UserRepository:
             await self.db.commit()
             await self.db.refresh(user_data)
             return user_data
-        except Exception:
+        except Exception as e:
+            logger.error(f"Failed to update user. Error: {e}")
             await self.db.rollback()
             raise
