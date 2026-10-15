@@ -27,7 +27,6 @@ class UserRepository:
             raise
 
     async def read(self, params: Params) -> Page[User]:
-        # user = self.db.query(User).offset(skip).limit(limit).all()
         try:
             count_stmt = select(func.count()).select_from(User)
             total_count = await self.db.scalar(count_stmt)
