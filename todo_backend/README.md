@@ -23,7 +23,7 @@ Run the project:
 
 ```
 uv run fastapi dev
-uvicorn main:app --reload # after install uvicorn
+uvicorn app.main:app --reload # after install uvicorn
 ```
 
 ---
@@ -127,27 +127,27 @@ uv add pyjwt
 ## To get better performance in Fastapi follow this
 
 📌 Phase 1: Async Environment & Database Core Setup
-• Step 1.1: Install required packages (asyncpg, greenlet).
+• Install required packages (asyncpg, greenlet).
 
 ```
 uv add python-dotenv asyncpg loguru uvicorn
 ```
 
-• Step 1.2: Configure database.py with create_async_engine and async_sessionmaker using PostgreSQL configured with connection pooling (pool_size=20, max_overflow=10).
+• Configure database.py with create_async_engine and async_sessionmaker using PostgreSQL configured with connection pooling (pool_size=20, max_overflow=10).
 
 📌 Phase 2: Async CRUD & Dependency Injection
-• Step 2.1: Implement the asynchronous get_db session dependency generator (yield pattern).
-• Step 2.2: Convert database models and migrate schemas to PostgreSQL.
-• Step 2.3: Refactor routes and services to use async def and await with SQLAlchemy's select() statements, ensuring transactional boundaries are explicitly handled.
+• Implement the asynchronous get_db session dependency generator (yield pattern).
+• Convert database models and migrate schemas to PostgreSQL.
+• Refactor routes and services to use async def and await with SQLAlchemy's select() statements, ensuring transactional boundaries are explicitly handled.
 
 📌 Phase 3: JWT Authentication & Security
-• Step 3.1: Implement secure password hashing using pwdlib instead of legacy passlib.
-• Step 3.2: Build JWT access/refresh token generation and verification logic.
-• Step 3.3: Create isolated authentication endpoints (/register, /login, and PATCH /{id}/change-password).
-• Step 3.4: Add protected route dependencies (Depends(get_current_user)) to secure endpoints based on user roles.
+• Implement secure password hashing using pwdlib instead of legacy passlib.
+• Build JWT access/refresh token generation and verification logic.
+• Create isolated authentication endpoints (/register, /login, and PATCH /{id}/change-password).
+• Add protected route dependencies (Depends(get_current_user)) to secure endpoints based on user roles.
 
 📌 Phase 4: Advanced Production Optimizations
-• Step 4.1: Set up Gunicorn + Uvicorn + uvloop workers for production multi-core process management.
-• Step 4.2: Integrate Redis Caching for frequent read queries (like user profiles or product lists).
-• Step 4.3: Configure background task queues (Celery + Redis) for heavy resource-intensive tasks.
-• Step 4.4: Apply security enhancements like Rate Limiting (slowapi) and GZipMiddleware using pure ASGI implementations to protect the event loop.
+• Set up Gunicorn + Uvicorn + uvloop workers for production multi-core process management.
+• Integrate Redis Caching for frequent read queries (like user profiles or product lists).
+• Configure background task queues (Celery + Redis) for heavy resource-intensive tasks.
+• Apply security enhancements like Rate Limiting (slowapi) and GZipMiddleware using pure ASGI implementations to protect the event loop.

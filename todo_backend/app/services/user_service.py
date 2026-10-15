@@ -15,9 +15,9 @@ class UserService:
     def __init__(self, user_repo: UserRepository):
         self.user_repo = user_repo
 
-    def create_user(self, user_data: UserCreate) -> User:
+    async def create_user(self, user_data: UserCreate) -> User:
 
-        user_exist = self.user_repo.get_by_email(user_data.email)
+        user_exist = await self.user_repo.get_by_email(user_data.email)
 
         if user_exist:
             raise UserAlreadyExistsError(email=user_data.email)
@@ -28,27 +28,27 @@ class UserService:
         user_dic["hashed_password"] = hashed_pw
 
         db_user = User(**user_dic)
-        return self.user_repo.create(user=db_user)
+        return await self.user_repo.create(user=db_user)
 
-    def read_user(self) -> Page[User]:
-        return self.user_repo.read()
+    async def read_user(self) -> Page[User]:
+        return await self.user_repo.read()
 
-    def get_user_by_id(self, id: int) -> User:
-        user = self.user_repo.get_by_id(id=id)
+    async def get_user_by_id(self, id: int) -> User:
+        user = await self.user_repo.get_by_id(id=id)
         if user is None:
             raise UserNotFoundError(id=id)
 
         return user
 
-    def delete_user(self, id: int):
-        user = self.user_repo.get_by_id(id=id)
+    async def delete_user(self, id: int):
+        user = await self.user_repo.get_by_id(id=id)
         if user is None:
             raise UserNotFoundError(id=id)
 
-        self.user_repo.delete(user_data=user)
+        await self.user_repo.delete(user_data=user)
 
-    def update_user_info(self, id: int, user_data: UserUpdate) -> User:
-        user = self.user_repo.get_by_id(id)
+    async def update_user_info(self, id: int, user_data: UserUpdate) -> User:
+        user = await self.user_repo.get_by_id(id)
 
         if user is None:
             raise UserNotFoundError(id=id)
@@ -58,10 +58,10 @@ class UserService:
         for key, value in updated_data.items():
             setattr(user, key, value)
 
-        return self.user_repo.update(user_data=user)
+        return await self.user_repo.update(user_data=user)
 
-    def change_password(self, id: int, passwords: UserChangePassword):
-        user = self.get_user_by_id(id=id)
+    async def change_password(self, id: int, passwords: UserChangePassword):
+        user = await self.get_user_by_id(id=id)
 
         if user is None:
             raise UserNotFoundError(id=id)
@@ -78,4 +78,4 @@ class UserService:
         # update the new pass in db
         user.hashed_password = hash_new_pass
 
-        return self.user_repo.update(user_data=user)
+        return await self.user_repo.update(user_data=user)

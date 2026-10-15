@@ -51,5 +51,5 @@ def register_exception_handlers(app: FastAPI) -> None:
 
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            content={"Input validation failed"},
+            content={"detail": "Input validation failed"},
         )
