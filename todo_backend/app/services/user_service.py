@@ -1,4 +1,4 @@
-from fastapi_pagination import Page
+from fastapi_pagination import Page, Params
 
 from ..config.exceptions import (
     PasswordDidntMatch,
@@ -30,8 +30,8 @@ class UserService:
         db_user = User(**user_dic)
         return await self.user_repo.create(user=db_user)
 
-    async def read_user(self) -> Page[User]:
-        return await self.user_repo.read()
+    async def read_user(self, params: Params) -> Page[User]:
+        return await self.user_repo.read(params)
 
     async def get_user_by_id(self, id: int) -> User:
         user = await self.user_repo.get_by_id(id=id)

@@ -1,5 +1,7 @@
-from fastapi import APIRouter, status
-from fastapi_pagination import Page
+from typing import Annotated, TypeAlias
+
+from fastapi import APIRouter, Depends, status
+from fastapi_pagination import Page, Params
 
 from ..config.dependencies import SessionDep
 from ..repositories.user_repository import UserRepository
@@ -12,6 +14,8 @@ from ..schemas.users_schema import (
 from ..services import user_service
 
 router = APIRouter(prefix="/api/users", tags=["users"])
+
+ParamsDep: TypeAlias = Annotated[Params, Depends()]
 
 
 # create user
@@ -28,12 +32,12 @@ async def create_user(user: UserCreate, db: SessionDep):
 
 # get users
 @router.get("/", response_model=Page[UserResponse], status_code=status.HTTP_200_OK)
-async def read_users(db: SessionDep):
+async def read_users(db: SessionDep, params: ParamsDep):
 
     user_repo = UserRepository(db)
 
     read_user_service = user_service.UserService(user_repo)
-    return await read_user_service.read_user()
+    return await read_user_service.read_user(params)
 
 
 # get user by id

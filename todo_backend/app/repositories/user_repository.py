@@ -1,6 +1,6 @@
-from fastapi_pagination import Page
-from fastapi_pagination.ext.sqlalchemy import paginate
+from fastapi_pagination import Page, Params
 from loguru import logger
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -26,10 +26,26 @@ class UserRepository:
             logger.error(f"Failed to create user. Error: {e}")
             raise
 
-    async def read(self) -> Page[User]:
+    async def read(self, params: Params) -> Page[User]:
         # user = self.db.query(User).offset(skip).limit(limit).all()
-        user = await paginate(self.db, self.db.select(User))
-        return user
+        try:
+            count_stmt = select(func.count()).select_from(User)
+            total_count = await self.db.scalar(count_stmt)
+
+            if total_count is None:
+                total_count = 0
+
+            offset = (params.page - 1) * params.size
+
+            smt = select(User).offset(offset).limit(params.size)
+            result = await self.db.execute(smt)
+            items = result.scalars().all()
+
+            return Page.create(items=items, total=total_count, params=params)
+
+        except Exception as e:
+            logger.error(f"Something went wrong, Error: {e}")
+            raise
 
     async def get_by_id(self, id: int) -> User | None:
         result = await self.db.execute(select(User).where(User.id == id))
