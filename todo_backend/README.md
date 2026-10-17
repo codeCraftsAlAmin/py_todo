@@ -141,7 +141,6 @@ uv add python-dotenv asyncpg loguru uvicorn
 • Refactor routes and services to use async def and await with SQLAlchemy's select() statements, ensuring transactional boundaries are explicitly handled.
 
 📌 Phase 3: JWT Authentication & Security
-• Implement secure password hashing using pwdlib instead of legacy passlib.
 • Build JWT access/refresh token generation and verification logic.
 • Create isolated authentication endpoints (/register, /login, and PATCH /{id}/change-password).
 • Add protected route dependencies (Depends(get_current_user)) to secure endpoints based on user roles.
