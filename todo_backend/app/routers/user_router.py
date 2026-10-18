@@ -4,10 +4,14 @@ from fastapi import APIRouter, Depends, status
 from fastapi_pagination import Page, Params
 
 from ..config.dependencies import SessionDep
+from ..config.logger import logger
+from ..config.security import create_access_token, create_refresh_token
 from ..repositories.user_repository import UserRepository
 from ..schemas.users_schema import (
+    TokenResponse,
     UserChangePassword,
     UserCreate,
+    UserLogin,
     UserResponse,
     UserUpdate,
 )
@@ -28,6 +32,31 @@ async def create_user(user: UserCreate, db: SessionDep):
 
     create_user_service = user_service.UserService(user_repo)
     return await create_user_service.create_user(user)
+
+
+# login user
+@router.post(
+    "/login", response_model=TokenResponse, status_code=status.HTTP_201_CREATED
+)
+async def login_user(user: UserLogin, db: SessionDep):
+    user_repo = UserRepository(db)
+
+    create_login_service = user_service.UserService(user_repo)
+    user_data = await create_login_service.login_user(user)
+
+    access_token = create_access_token(
+        {"sub": str(user_data.id), "email": user_data.email}
+    )
+    refresh_token = create_refresh_token({"sub": str(user_data.id)})
+    logger.info(f"User logged in successfully: {user_data.email}")
+
+    return {
+        "id": user_data.id,
+        "email": user_data.email,
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+    }
 
 
 # get users

@@ -8,7 +8,7 @@ from ..config.exceptions import (
 from ..config.security import hash_password, verify_password
 from ..models.users_model import User
 from ..repositories.user_repository import UserRepository
-from ..schemas.users_schema import UserChangePassword, UserCreate, UserUpdate
+from ..schemas.users_schema import UserChangePassword, UserCreate, UserLogin, UserUpdate
 
 
 class UserService:
@@ -29,6 +29,20 @@ class UserService:
 
         db_user = User(**user_dic)
         return await self.user_repo.create(user=db_user)
+
+    async def login_user(self, user_data: UserLogin) -> User:
+        user = await self.user_repo.get_by_email(email=user_data.email)
+
+        if user is None:
+            raise UserNotFoundError(email=user_data.email)
+
+        is_valid_pass = verify_password(
+            plain_password=user_data.password, hashed_password=user.hashed_password
+        )
+
+        if is_valid_pass is not True:
+            raise PasswordDidntMatch()
+        return user
 
     async def read_user(self, params: Params) -> Page[User]:
         return await self.user_repo.read(params)

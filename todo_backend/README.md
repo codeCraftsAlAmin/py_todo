@@ -142,6 +142,21 @@ uv add python-dotenv asyncpg loguru uvicorn
 
 📌 Phase 3: JWT Authentication & Security
 • Build JWT access/refresh token generation and verification logic.
+
+command for the secret key:
+We need to install PyJWT to generate and verify the JWT tokens in Python:
+
+```
+uv add pyjwt
+```
+
+Create a random secret key that will be used to sign the JWT tokens.
+To generate a secure random secret key use the command:
+
+```
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
 • Create isolated authentication endpoints (/register, /login, and PATCH /{id}/change-password).
 • Add protected route dependencies (Depends(get_current_user)) to secure endpoints based on user roles.
 

@@ -23,6 +23,19 @@ class UserChangePassword(BaseModel):
     new_password: str = Field(..., min_length=8, description="enter new password")
 
 
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str = Field(..., min_length=8, description="password")
+
+
+class TokenResponse(BaseModel):
+    id: int
+    email: str
+    access_token: str
+    refresh_token: str
+    token_type: str
+
+
 # Used for API responses (Outgoing Data)
 class UserResponse(UserBase):
     id: int

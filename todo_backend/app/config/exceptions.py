@@ -19,9 +19,13 @@ class UserAlreadyExistsError(BaseAppException):
 
 
 class UserNotFoundError(BaseAppException):
-    def __init__(self, id: int):
+    def __init__(self, id: int | None = None, email: str | None = None):
+        if id is not None:
+            message = f"User with ID: {id} not found"
+        if email is not None:
+            message = f"User with email: {email} not found"
         super().__init__(
-            message=f"User with ID {id} not found",
+            message=message,
             status_code=status.HTTP_404_NOT_FOUND,
         )
 
