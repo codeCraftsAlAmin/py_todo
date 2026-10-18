@@ -1,10 +1,10 @@
 from typing import Annotated, TypeAlias
 
 from fastapi import APIRouter, Depends, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi_pagination import Page, Params
 
 from ..config.dependencies import SessionDep
-from ..config.logger import logger
 from ..config.security import create_access_token, create_refresh_token
 from ..repositories.user_repository import UserRepository
 from ..schemas.users_schema import (
@@ -20,6 +20,8 @@ from ..services import user_service
 router = APIRouter(prefix="/api/users", tags=["users"])
 
 ParamsDep: TypeAlias = Annotated[Params, Depends()]
+FormDep: TypeAlias = Annotated[OAuth2PasswordRequestForm, Depends()]
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 # create user
@@ -35,24 +37,21 @@ async def create_user(user: UserCreate, db: SessionDep):
 
 
 # login user
-@router.post(
-    "/login", response_model=TokenResponse, status_code=status.HTTP_201_CREATED
-)
-async def login_user(user: UserLogin, db: SessionDep):
+@router.post("/login", response_model=TokenResponse, status_code=status.HTTP_200_OK)
+async def login_user(form_data: FormDep, db: SessionDep):
     user_repo = UserRepository(db)
 
     create_login_service = user_service.UserService(user_repo)
-    user_data = await create_login_service.login_user(user)
+    login_payload = UserLogin(email=form_data.username, password=form_data.password)
 
-    access_token = create_access_token(
-        {"sub": str(user_data.id), "email": user_data.email}
-    )
-    refresh_token = create_refresh_token({"sub": str(user_data.id)})
-    logger.info(f"User logged in successfully: {user_data.email}")
+    user = await create_login_service.login_user(login_payload)
+
+    access_token = create_access_token({"sub": str(user.id)})
+    refresh_token = create_refresh_token({"sub": str(user.id)})
 
     return {
-        "id": user_data.id,
-        "email": user_data.email,
+        "id": user.id,
+        "email": user.email,
         "access_token": access_token,
         "refresh_token": refresh_token,
         "token_type": "bearer",
