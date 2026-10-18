@@ -1,11 +1,25 @@
 from datetime import UTC, datetime, timedelta
+from typing import Annotated, TypeAlias
 
 import jwt
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..config.exceptions import UserNotFoundError
+from ..config.logger import logger
 from ..config.settings import setting
+from ..models.users_model import User
+from ..repositories import user_repository
+from .db import get_db
 
 password_hash = PasswordHash.recommended()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/users/login")
+
+TokeDep: TypeAlias = Annotated[str, Depends(oauth2_scheme)]
+SessionDep: TypeAlias = Annotated[AsyncSession, Depends(get_db)]
 
 
 # hash password
@@ -34,3 +48,30 @@ def create_refresh_token(data: dict) -> str:
     encoded_jwt = jwt.encode(to_encode, setting.SECRET_KEY, setting.ALGORITHM)
 
     return encoded_jwt
+
+
+async def get_current_user(token: TokeDep, db: SessionDep) -> User:
+    try:
+        payload = jwt.decode(token, setting.SECRET_KEY, setting.ALGORITHM)
+        user_id = payload.get("sub")
+
+        if user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials",
+            )
+        # token_data = TokenData(id=user_id)
+    except InvalidTokenError as e:
+        logger.error(f"Token validation failed. Error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+        )
+
+    user_repo = user_repository.UserRepository(db)
+    user = await user_repo.get_by_id(int(user_id))
+
+    if user is None:
+        raise UserNotFoundError(id=user_id)
+    logger.info(f"user info : {user}")
+    return user

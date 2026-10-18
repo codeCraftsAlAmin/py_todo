@@ -1,11 +1,16 @@
 from typing import Annotated, TypeAlias
 
 from fastapi import APIRouter, Depends, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_pagination import Page, Params
 
 from ..config.dependencies import SessionDep
-from ..config.security import create_access_token, create_refresh_token
+from ..config.security import (
+    create_access_token,
+    create_refresh_token,
+    get_current_user,
+)
+from ..models.users_model import User
 from ..repositories.user_repository import UserRepository
 from ..schemas.users_schema import (
     TokenResponse,
@@ -21,7 +26,7 @@ router = APIRouter(prefix="/api/users", tags=["users"])
 
 ParamsDep: TypeAlias = Annotated[Params, Depends()]
 FormDep: TypeAlias = Annotated[OAuth2PasswordRequestForm, Depends()]
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+CurrentUser: TypeAlias = Annotated[User, Depends(get_current_user)]
 
 
 # create user
@@ -66,6 +71,12 @@ async def read_users(db: SessionDep, params: ParamsDep):
 
     read_user_service = user_service.UserService(user_repo)
     return await read_user_service.read_user(params)
+
+
+# get my profile
+@router.get("/me", response_model=UserResponse, status_code=status.HTTP_200_OK)
+async def get_my_profile(current_user: CurrentUser):
+    return current_user
 
 
 # get user by id
