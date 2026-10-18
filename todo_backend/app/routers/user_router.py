@@ -31,7 +31,7 @@ CurrentUser: TypeAlias = Annotated[User, Depends(get_current_user)]
 
 # create user
 @router.post(
-    "/create", response_model=UserResponse, status_code=status.HTTP_201_CREATED
+    "/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED
 )
 async def create_user(user: UserCreate, db: SessionDep):
 
@@ -91,11 +91,11 @@ async def get_user_by_id(id: int, db: SessionDep):
 
 # delete user
 @router.delete("/{id}/delete-user", status_code=status.HTTP_200_OK)
-async def delete_user(id: int, db: SessionDep):
+async def delete_user(db: SessionDep, current_user: CurrentUser):
     user_repo = UserRepository(db)
 
     delete_user_service = user_service.UserService(user_repo)
-    await delete_user_service.delete_user(id)
+    await delete_user_service.delete_user(id=current_user.id)
     return {"message": "User deleted successfully!"}
 
 
@@ -103,18 +103,24 @@ async def delete_user(id: int, db: SessionDep):
 @router.patch(
     "/{id}/update-profile", response_model=UserResponse, status_code=status.HTTP_200_OK
 )
-async def update_user(id: int, user: UserUpdate, db: SessionDep):
+async def update_user(user: UserUpdate, db: SessionDep, current_user: CurrentUser):
     user_repo = UserRepository(db)
     update_user_service = user_service.UserService(user_repo)
 
-    return await update_user_service.update_user_info(id=id, user_data=user)
+    return await update_user_service.update_user_info(
+        id=current_user.id, user_data=user
+    )
 
 
 # change password
 @router.patch("/{id}/change-password", status_code=status.HTTP_200_OK)
-async def change_password(id: int, password: UserChangePassword, db: SessionDep):
+async def change_password(
+    password: UserChangePassword, db: SessionDep, current_user: CurrentUser
+):
     user_repo = UserRepository(db)
 
-    change_password_service = await user_service.UserService(user_repo)
-    await change_password_service.change_password(id=id, passwords=password)
+    change_password_service = user_service.UserService(user_repo)
+    await change_password_service.change_password(
+        id=current_user.id, passwords=password
+    )
     return {"message": "Your password changed successfully!"}
