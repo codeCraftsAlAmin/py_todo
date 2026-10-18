@@ -63,6 +63,12 @@ async def login_user(form_data: FormDep, db: SessionDep):
     }
 
 
+# get my profile
+@router.get("/me", response_model=UserResponse, status_code=status.HTTP_200_OK)
+async def get_my_profile(current_user: CurrentUser):
+    return current_user
+
+
 # get users
 @router.get("/", response_model=Page[UserResponse], status_code=status.HTTP_200_OK)
 async def read_users(db: SessionDep, params: ParamsDep):
@@ -71,12 +77,6 @@ async def read_users(db: SessionDep, params: ParamsDep):
 
     read_user_service = user_service.UserService(user_repo)
     return await read_user_service.read_user(params)
-
-
-# get my profile
-@router.get("/me", response_model=UserResponse, status_code=status.HTTP_200_OK)
-async def get_my_profile(current_user: CurrentUser):
-    return current_user
 
 
 # get user by id

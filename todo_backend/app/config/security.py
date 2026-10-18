@@ -52,15 +52,15 @@ def create_refresh_token(data: dict) -> str:
 
 async def get_current_user(token: TokeDep, db: SessionDep) -> User:
     try:
-        payload = jwt.decode(token, setting.SECRET_KEY, setting.ALGORITHM)
+        payload = jwt.decode(token, setting.SECRET_KEY, algorithms=[setting.ALGORITHM])
         user_id = payload.get("sub")
+        token_type = payload.get("type")
 
-        if user_id is None:
+        if user_id is None or token_type != "access":
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Could not validate credentials",
             )
-        # token_data = TokenData(id=user_id)
     except InvalidTokenError as e:
         logger.error(f"Token validation failed. Error: {e}")
         raise HTTPException(
