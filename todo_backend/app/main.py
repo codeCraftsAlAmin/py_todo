@@ -10,7 +10,7 @@ from .models import (
     todos_model,  # noqa: F401
     users_model,  # noqa: F401
 )
-from .routers import user_router
+from .routers import todo_router, user_router
 
 
 # manage application lifecycles gracefully (Startup and Shutdown events)
@@ -34,6 +34,7 @@ add_pagination(app)
 
 
 app.include_router(user_router.router)
+app.include_router(todo_router.router)
 
 
 @app.get("/")

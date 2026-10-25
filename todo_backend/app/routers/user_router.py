@@ -22,7 +22,7 @@ from ..schemas.users_schema import (
 )
 from ..services import user_service
 
-router = APIRouter(prefix="/api/users", tags=["users"])
+router = APIRouter(prefix="/api/users", tags=["Users"])
 
 ParamsDep: TypeAlias = Annotated[Params, Depends()]
 FormDep: TypeAlias = Annotated[OAuth2PasswordRequestForm, Depends()]
