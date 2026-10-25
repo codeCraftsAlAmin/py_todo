@@ -6,7 +6,10 @@ from loguru import logger
 
 from .config.db import Base, engine
 from .config.exceptions import register_exception_handlers
-from .models import users_model  # noqa: F401
+from .models import (
+    todos_model,  # noqa: F401
+    users_model,  # noqa: F401
+)
 from .routers import user_router
 
 
