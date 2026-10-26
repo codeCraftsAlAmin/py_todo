@@ -54,18 +54,12 @@ class UserService:
 
         return user
 
-    async def delete_user(self, id: int):
-        user = await self.user_repo.get_by_id(id=id)
-        if user is None:
-            raise UserNotFoundError(id=id)
-
+    async def delete_user(self, user: User):
+        # user = await self.user_repo.get_by_id(id=id)
         await self.user_repo.delete(user_data=user)
 
     async def update_user_info(self, id: int, user_data: UserUpdate) -> User:
         user = await self.user_repo.get_by_id(id)
-
-        if user is None:
-            raise UserNotFoundError(id=id)
 
         updated_data = user_data.model_dump(exclude_unset=True)
 
@@ -75,10 +69,7 @@ class UserService:
         return await self.user_repo.update(user_data=user)
 
     async def change_password(self, id: int, passwords: UserChangePassword):
-        user = await self.get_user_by_id(id=id)
-
-        if user is None:
-            raise UserNotFoundError(id=id)
+        user = await self.user_repo.get_by_id(id=id)
 
         is_password_correct = verify_password(
             plain_password=passwords.old_password, hashed_password=user.hashed_password

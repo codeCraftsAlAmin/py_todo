@@ -1,8 +1,17 @@
-from fastapi import APIRouter, status
+from typing import Annotated, TypeAlias
+
+from fastapi import APIRouter, Depends, status
 
 from ..config.dependencies import SessionDep
+from ..config.security import get_current_user
+from ..models.users_model import User
+from ..repositories.todo_repository import TodoRepository
+from ..schemas.todos_schema import TodoCreate, TodoResponse
+from ..services import todo_service
 
 router = APIRouter(prefix="/api/todos", tags=["Todos"])
+
+CurrentUser: TypeAlias = Annotated[User, Depends(get_current_user)]
 
 
 # get todos
@@ -18,9 +27,18 @@ async def get_todo_by_id(id: int, db: SessionDep):
 
 
 # create todo
-@router.post("/create", status_code=status.HTTP_201_CREATED)
-async def create_todo(db: SessionDep):
-    return {"message": "this is create todo router"}
+@router.post(
+    "/create", response_model=TodoResponse, status_code=status.HTTP_201_CREATED
+)
+async def create_todo(
+    todo_payload: TodoCreate, db: SessionDep, current_user: CurrentUser
+):
+    todo_repo = TodoRepository(db)
+
+    create_todo_service = todo_service.TodoService(todo_repo)
+    return await create_todo_service.create_todo(
+        id=current_user.id, todo_payload=todo_payload
+    )
 
 
 # delete todo

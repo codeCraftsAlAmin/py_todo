@@ -95,7 +95,7 @@ async def delete_user(db: SessionDep, current_user: CurrentUser):
     user_repo = UserRepository(db)
 
     delete_user_service = user_service.UserService(user_repo)
-    await delete_user_service.delete_user(id=current_user.id)
+    await delete_user_service.delete_user(user=current_user)
     return {"message": "User deleted successfully!"}
 
 

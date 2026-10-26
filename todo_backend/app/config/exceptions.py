@@ -30,6 +30,14 @@ class UserNotFoundError(BaseAppException):
         )
 
 
+class TodoNotFound(BaseAppException):
+    def __init__(self, id: int | None = None):
+        super().__init__(
+            message=f"Todo data with the ID: {id} not found",
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
+
+
 class PasswordDidntMatch(BaseAppException):
     def __init__(self):
         super().__init__(
