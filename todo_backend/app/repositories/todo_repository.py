@@ -9,16 +9,16 @@ class TodoRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def get_by_id(self, id: int) -> Todo | None:
-        result = await self.db.execute(select(Todo).where(Todo.id == id))
-        return result.scalars().first()
+    async def own_todos(self, id: int) -> list[Todo | None]:
+        result = await self.db.execute(select(Todo).where(Todo.user_id == id))
+        return result.scalars().all()
 
-    async def create(self, todo_payload: Todo) -> Todo:
+    async def create(self, todo_data: Todo) -> Todo:
         try:
-            self.db.add(todo_payload)
+            self.db.add(todo_data)
             await self.db.commit()
-            await self.db.refresh(todo_payload)
-            return todo_payload
+            await self.db.refresh(todo_data)
+            return todo_data
         except Exception as e:
             logger.error(f"Failed to create user. Error: {e}")
             raise

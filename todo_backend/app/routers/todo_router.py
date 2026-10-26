@@ -12,6 +12,7 @@ from ..services import todo_service
 router = APIRouter(prefix="/api/todos", tags=["Todos"])
 
 CurrentUser: TypeAlias = Annotated[User, Depends(get_current_user)]
+# ParamsDep: TypeAlias = Annotated[Params, Depends()]
 
 
 # get todos
@@ -20,10 +21,14 @@ async def read_todos(db: SessionDep):
     return {"message": "this is read todo router"}
 
 
-# get todo by id
-@router.get("/{id}", status_code=status.HTTP_200_OK)
-async def get_todo_by_id(id: int, db: SessionDep):
-    return {"message": "this is read todo router"}
+# get own todos
+@router.get("/my-todos", status_code=status.HTTP_200_OK)
+async def get_my_todos(db: SessionDep, current_user: CurrentUser):
+    todo_repo = TodoRepository(db)
+    get_own_todos_service = todo_service.TodoService(todo_repo)
+
+    items = await get_own_todos_service.get_own_todos(id=current_user.id)
+    return {"items": items}
 
 
 # create todo
