@@ -13,6 +13,12 @@ class TodoRepository:
         result = await self.db.execute(select(Todo).where(Todo.user_id == id))
         return result.scalars().all()
 
+    async def find(self, id: int, user_id: int) -> Todo | None:
+        result = await self.db.execute(
+            select(Todo).where(Todo.id == id and Todo.user_id == user_id)
+        )
+        return result.scalars().first()
+
     async def create(self, todo_data: Todo) -> Todo:
         try:
             self.db.add(todo_data)
@@ -21,12 +27,4 @@ class TodoRepository:
             return todo_data
         except Exception as e:
             logger.error(f"Failed to create user. Error: {e}")
-            raise
-
-    async def read(self) -> Todo:
-        try:
-            result = await self.db.execute(select(Todo))
-            return result.scalars().all()
-        except Exception as e:
-            logger.error(f"Failed to delete user. Error: {e}")
             raise

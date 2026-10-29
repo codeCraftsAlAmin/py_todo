@@ -28,6 +28,10 @@ class TodoResponse(TodoBase):
     is_deleted: bool
     created_at: datetime
 
+
+class TodoListResponse(BaseModel):
+    items: list[TodoResponse]
+
     model_config = {
         "from_attributes": True,
         "extra": "forbid",

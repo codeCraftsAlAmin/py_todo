@@ -6,29 +6,33 @@ from ..config.dependencies import SessionDep
 from ..config.security import get_current_user
 from ..models.users_model import User
 from ..repositories.todo_repository import TodoRepository
-from ..schemas.todos_schema import TodoCreate, TodoResponse
+from ..schemas.todos_schema import TodoCreate, TodoListResponse, TodoResponse
 from ..services import todo_service
 
 router = APIRouter(prefix="/api/todos", tags=["Todos"])
 
 CurrentUser: TypeAlias = Annotated[User, Depends(get_current_user)]
-# ParamsDep: TypeAlias = Annotated[Params, Depends()]
-
-
-# get todos
-@router.get("/", status_code=status.HTTP_200_OK)
-async def read_todos(db: SessionDep):
-    return {"message": "this is read todo router"}
 
 
 # get own todos
-@router.get("/my-todos", status_code=status.HTTP_200_OK)
+@router.get(
+    "/my-todos", response_model=TodoListResponse, status_code=status.HTTP_200_OK
+)
 async def get_my_todos(db: SessionDep, current_user: CurrentUser):
     todo_repo = TodoRepository(db)
     get_own_todos_service = todo_service.TodoService(todo_repo)
 
     items = await get_own_todos_service.get_own_todos(id=current_user.id)
     return {"items": items}
+
+
+# get own todo by id
+@router.get("{id}/my-todo", response_model=TodoResponse, status_code=status.HTTP_200_OK)
+async def get_todo_by_id(id: int, db: SessionDep, current_user: CurrentUser):
+    todo_repo = TodoRepository(db)
+    find_todo_service = todo_service.TodoService(todo_repo)
+
+    return await find_todo_service.find_by_id(id=id, user_id=current_user.id)
 
 
 # create todo
@@ -48,8 +52,8 @@ async def create_todo(
 
 # delete todo
 @router.delete("{id}/delete", status_code=status.HTTP_200_OK)
-async def delete_todo(id: int, db: SessionDep):
-    return {"message": "this is delete todo router"}
+async def delete_todo(id: int, db: SessionDep, current_user: CurrentUser):
+    return {"message": "This is delete todo route"}
 
 
 # update todo
