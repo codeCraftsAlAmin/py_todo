@@ -11,7 +11,7 @@ class TodoService:
     async def get_own_todos(self, id: int) -> list[Todo | None]:
         todo = await self.todo_repo.own_todos(id=id)
 
-        if todo is None: 
+        if todo is None:
             raise TodoNotFound()
         return todo
 
@@ -29,3 +29,10 @@ class TodoService:
 
         todo_data = Todo(**todo)
         return await self.todo_repo.create(todo_data)
+
+    async def delete_todo(self, id: int, user_id: int):
+        todo = await self.todo_repo.find(id=id, user_id=user_id)
+        if todo is None:
+            raise TodoNotFound(id=id)
+
+        await self.todo_repo.delete(todo=todo)

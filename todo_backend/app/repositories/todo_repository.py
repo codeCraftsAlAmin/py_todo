@@ -28,3 +28,12 @@ class TodoRepository:
         except Exception as e:
             logger.error(f"Failed to create user. Error: {e}")
             raise
+
+    async def delete(self, todo: Todo):
+        try:
+            await self.db.delete(todo)
+            await self.db.commit()
+        except Exception as e:
+            await self.db.rollback()
+            logger.error(f"Failed to delete todo. Error: {e}")
+            raise

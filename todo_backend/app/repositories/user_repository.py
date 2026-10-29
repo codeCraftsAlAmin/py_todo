@@ -65,6 +65,6 @@ class UserRepository:
             await self.db.refresh(user_data)
             return user_data
         except Exception as e:
-            logger.error(f"Failed to update user. Error: {e}")
             await self.db.rollback()
+            logger.error(f"Failed to update user. Error: {e}")
             raise

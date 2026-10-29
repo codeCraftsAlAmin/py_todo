@@ -53,7 +53,11 @@ async def create_todo(
 # delete todo
 @router.delete("{id}/delete", status_code=status.HTTP_200_OK)
 async def delete_todo(id: int, db: SessionDep, current_user: CurrentUser):
-    return {"message": "This is delete todo route"}
+    todo_repo = TodoRepository(db)
+    delete_todo_service = todo_service.TodoService(todo_repo)
+
+    await delete_todo_service.delete_todo(id=id, user_id=current_user.id)
+    return {"message": "Todo is deleted successfully"}
 
 
 # update todo
