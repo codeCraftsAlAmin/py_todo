@@ -15,8 +15,9 @@ class TodoRepository:
 
     async def find(self, id: int, user_id: int) -> Todo | None:
         result = await self.db.execute(
-            select(Todo).where(Todo.id == id and Todo.user_id == user_id)
+            select(Todo).where(Todo.id == id, Todo.user_id == user_id)
         )
+
         return result.scalars().first()
 
     async def create(self, todo_data: Todo) -> Todo:
@@ -36,4 +37,15 @@ class TodoRepository:
         except Exception as e:
             await self.db.rollback()
             logger.error(f"Failed to delete todo. Error: {e}")
+            raise
+
+    async def update(self, todo_data: Todo) -> Todo:
+        try:
+            update_todo = await self.db.merge(todo_data)
+            await self.db.commit()
+            await self.db.refresh(update_todo)
+            return update_todo
+        except Exception as e:
+            await self.db.rollback()
+            logger.error(f"Failed to update todo. Error: {e}")
             raise

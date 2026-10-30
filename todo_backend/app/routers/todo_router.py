@@ -6,7 +6,12 @@ from ..config.dependencies import SessionDep
 from ..config.security import get_current_user
 from ..models.users_model import User
 from ..repositories.todo_repository import TodoRepository
-from ..schemas.todos_schema import TodoCreate, TodoListResponse, TodoResponse
+from ..schemas.todos_schema import (
+    TodoCreate,
+    TodoListResponse,
+    TodoResponse,
+    UpdateTodo,
+)
 from ..services import todo_service
 
 router = APIRouter(prefix="/api/todos", tags=["Todos"])
@@ -27,7 +32,9 @@ async def get_my_todos(db: SessionDep, current_user: CurrentUser):
 
 
 # get own todo by id
-@router.get("{id}/my-todo", response_model=TodoResponse, status_code=status.HTTP_200_OK)
+@router.get(
+    "/{id}/my-todo", response_model=TodoResponse, status_code=status.HTTP_200_OK
+)
 async def get_todo_by_id(id: int, db: SessionDep, current_user: CurrentUser):
     todo_repo = TodoRepository(db)
     find_todo_service = todo_service.TodoService(todo_repo)
@@ -51,7 +58,7 @@ async def create_todo(
 
 
 # delete todo
-@router.delete("{id}/delete", status_code=status.HTTP_200_OK)
+@router.delete("/{id}/delete", status_code=status.HTTP_200_OK)
 async def delete_todo(id: int, db: SessionDep, current_user: CurrentUser):
     todo_repo = TodoRepository(db)
     delete_todo_service = todo_service.TodoService(todo_repo)
@@ -61,6 +68,15 @@ async def delete_todo(id: int, db: SessionDep, current_user: CurrentUser):
 
 
 # update todo
-@router.patch("/{id}/update", status_code=status.HTTP_200_OK)
-async def update_todo(id: int, db: SessionDep):
-    return {"message": "this is update todo router"}
+@router.patch(
+    "/{id}/update", response_model=TodoResponse, status_code=status.HTTP_200_OK
+)
+async def update_todo(
+    id: int, db: SessionDep, todo_payload: UpdateTodo, current_user: CurrentUser
+):
+    todo_repo = TodoRepository(db)
+    update_todo_service = todo_service.TodoService(todo_repo)
+
+    return await update_todo_service.update_todo(
+        id=id, payload=todo_payload, user_id=current_user.id
+    )

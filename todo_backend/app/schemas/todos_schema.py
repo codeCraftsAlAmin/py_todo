@@ -22,6 +22,12 @@ class TodoCreate(TodoBase):
     pass
 
 
+class UpdateTodo(BaseModel):
+    title: str | None = Field(None, description="title your todo")
+    description: str | None = Field(None, description="describe your task")
+    status: TodoStatus | None = Field(None, description="status your todo")
+
+
 class TodoResponse(TodoBase):
     id: int
     user_id: int
