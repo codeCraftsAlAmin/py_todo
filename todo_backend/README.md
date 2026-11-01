@@ -160,7 +160,11 @@ python -c "import secrets; print(secrets.token_hex(32))"
 • Create isolated authentication endpoints (/register, /login, and PATCH /{id}/change-password).
 • Add protected route dependencies (Depends(get_current_user)) to secure endpoints based on user roles.
 
-📌 Phase 4: Advanced Production Optimizations
+📌 Phase 4: Work with Todo
+• Handle todo CRUD operations
+• Make relation between TODO and USER tables
+
+📌 Phase 5: Advanced Production Optimizations
 • Set up Gunicorn + Uvicorn + uvloop workers for production multi-core process management.
 • Integrate Redis Caching for frequent read queries (like user profiles or product lists).
 • Configure background task queues (Celery + Redis) for heavy resource-intensive tasks.
