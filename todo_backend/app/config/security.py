@@ -13,10 +13,11 @@ from ..config.logger import logger
 from ..config.settings import setting
 from ..models.users_model import User
 from ..repositories import user_repository
+from ..schemas.users_schema import RefreshTokenRequest
 from .db import get_db
 
 password_hash = PasswordHash.recommended()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/users/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/users/login")
 
 TokeDep: TypeAlias = Annotated[str, Depends(oauth2_scheme)]
 SessionDep: TypeAlias = Annotated[AsyncSession, Depends(get_db)]
@@ -75,3 +76,30 @@ async def get_current_user(token: TokeDep, db: SessionDep) -> User:
         raise UserNotFoundError(id=user_id)
     logger.info(f"user info : {user}")
     return user
+
+
+async def regenerate_access_token(body: RefreshTokenRequest) -> dict:
+    try:
+        token = body.refresh_token
+
+        payload = jwt.decode(token, setting.SECRET_KEY, algorithms=[setting.ALGORITHM])
+        user_id: int = payload.get("sub")
+        token_type: str = payload.get("type")
+
+        if user_id is None or token_type != "refresh":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials",
+            )
+    except InvalidTokenError as e:
+        logger.error(f"Token validation failed. Error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+        )
+
+    new_access_token = create_access_token(data={"sub": str(user_id)})
+    return {
+        "access_token": new_access_token,
+        "token_type": "bearer",
+    }

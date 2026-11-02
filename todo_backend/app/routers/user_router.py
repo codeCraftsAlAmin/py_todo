@@ -9,6 +9,7 @@ from ..config.security import (
     create_access_token,
     create_refresh_token,
     get_current_user,
+    regenerate_access_token,
 )
 from ..models.users_model import User
 from ..repositories.user_repository import UserRepository
@@ -22,11 +23,12 @@ from ..schemas.users_schema import (
 )
 from ..services import user_service
 
-router = APIRouter(prefix="/api/users", tags=["Users"])
+router = APIRouter(prefix="/api/auth/users", tags=["Users"])
 
 ParamsDep: TypeAlias = Annotated[Params, Depends()]
 FormDep: TypeAlias = Annotated[OAuth2PasswordRequestForm, Depends()]
 CurrentUser: TypeAlias = Annotated[User, Depends(get_current_user)]
+TokenData: TypeAlias = Annotated[dict, Depends(regenerate_access_token)]
 
 
 # create user
@@ -124,3 +126,9 @@ async def change_password(
         id=current_user.id, passwords=password
     )
     return {"message": "Your password changed successfully!"}
+
+
+# refresh token
+@router.post("/refresh-token", status_code=status.HTTP_200_OK)
+async def refresh_token(token_data: TokenData):
+    return token_data

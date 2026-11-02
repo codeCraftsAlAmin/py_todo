@@ -36,6 +36,10 @@ class TokenResponse(BaseModel):
     token_type: str
 
 
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str = Field(..., description="The refresh token")
+
+
 # Used for API responses (Outgoing Data)
 class UserResponse(UserBase):
     id: int
