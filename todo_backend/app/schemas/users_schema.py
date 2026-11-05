@@ -31,9 +31,6 @@ class UserLogin(BaseModel):
 class TokenResponse(BaseModel):
     id: int
     email: str
-    access_token: str
-    refresh_token: str
-    token_type: str
 
 
 class RefreshTokenRequest(BaseModel):

@@ -1,6 +1,6 @@
 from typing import Annotated, TypeAlias
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_pagination import Page, Params
 
@@ -45,7 +45,7 @@ async def create_user(user: UserCreate, db: SessionDep):
 
 # login user
 @router.post("/login", response_model=TokenResponse, status_code=status.HTTP_200_OK)
-async def login_user(form_data: FormDep, db: SessionDep):
+async def login_user(form_data: FormDep, response: Response, db: SessionDep):
     user_repo = UserRepository(db)
 
     create_login_service = user_service.UserService(user_repo)
@@ -56,13 +56,24 @@ async def login_user(form_data: FormDep, db: SessionDep):
     access_token = create_access_token({"sub": str(user.id)})
     refresh_token = create_refresh_token({"sub": str(user.id)})
 
-    return {
-        "id": user.id,
-        "email": user.email,
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-        "token_type": "bearer",
-    }
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,  # stay hide from js
+        secure=False,  # will be True in production
+        samesite="lax",
+        max_age=7 * 24 * 60 * 60,  # 7ds in sec
+    )
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,  # stay hide from js
+        secure=False,  # will be True in production(HTTPS)
+        samesite="lax",
+        max_age=15 * 60,  # 15m in sec
+    )
+
+    return {"message": "Login successful", "id": user.id, "email": user.email}
 
 
 # get my profile
@@ -130,5 +141,18 @@ async def change_password(
 
 # refresh token
 @router.post("/refresh-token", status_code=status.HTTP_200_OK)
-async def refresh_token(token_data: TokenData):
-    return token_data
+async def refresh_token(response: Response, token_data: TokenData):
+    new_access_token = token_data.get("access_token")
+
+    response.set_cookie(
+        key="access_token",
+        value=new_access_token,
+        httponly=True,  # stay hide from js
+        secure=False,  # will be True in production(HTTPS)
+        samesite="lax",
+        max_age=15 * 60,  # 15m in sec
+    )
+
+    return {
+        "message": "Access token refreshed successfully",
+    }
