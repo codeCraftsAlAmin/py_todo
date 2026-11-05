@@ -142,6 +142,8 @@ uv add python-dotenv asyncpg loguru uvicorn
 
 📌 Phase 3: JWT Authentication & Security
 • Build JWT access/refresh token generation and verification logic.
+• Set cookie to the cookie
+
 
 command for the secret key:
 We need to install PyJWT to generate and verify the JWT tokens in Python:
