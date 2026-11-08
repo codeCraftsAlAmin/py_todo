@@ -144,7 +144,6 @@ uv add python-dotenv asyncpg loguru uvicorn
 • Build JWT access/refresh token generation and verification logic.
 • Set cookie to the cookie
 
-
 command for the secret key:
 We need to install PyJWT to generate and verify the JWT tokens in Python:
 
@@ -161,6 +160,8 @@ python -c "import secrets; print(secrets.token_hex(32))"
 
 • Create isolated authentication endpoints (/register, /login, and PATCH /{id}/change-password).
 • Add protected route dependencies (Depends(get_current_user)) to secure endpoints based on user roles.
+
+• User cookie based protected route.
 
 📌 Phase 4: Work with Todo
 • Handle todo CRUD operations
