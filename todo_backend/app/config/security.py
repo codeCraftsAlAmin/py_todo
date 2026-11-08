@@ -3,7 +3,7 @@ from typing import Annotated, TypeAlias
 
 import jwt
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, APIKeyCookie
 from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,8 +19,9 @@ from .db import get_db
 password_hash = PasswordHash.recommended()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/users/login")
 
-TokeDep: TypeAlias = Annotated[str, Depends(oauth2_scheme)]
+# TokeDep: TypeAlias = Annotated[str, Depends(oauth2_scheme)]
 SessionDep: TypeAlias = Annotated[AsyncSession, Depends(get_db)]
+cookie_scheme = APIKeyCookie(name="access_token", auto_error=False)
 
 
 # hash password
@@ -51,17 +52,27 @@ def create_refresh_token(data: dict) -> str:
     return encoded_jwt
 
 
-async def get_current_user(token: TokeDep, db: SessionDep) -> User:
+async def get_current_user(
+    access_token: Annotated[str | None, Depends(cookie_scheme)], db: SessionDep = None
+) -> User:
+    if access_token is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated, missing access token cookie",
+        )
     try:
-        payload = jwt.decode(token, setting.SECRET_KEY, algorithms=[setting.ALGORITHM])
+        payload = jwt.decode(
+            access_token, setting.SECRET_KEY, algorithms=[setting.ALGORITHM]
+        )
         user_id = payload.get("sub")
         token_type = payload.get("type")
 
         if user_id is None or token_type != "access":
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Could not validate credentials",
+                detail="Not authenticated, missing access token cookie",
             )
+
     except InvalidTokenError as e:
         logger.error(f"Token validation failed. Error: {e}")
         raise HTTPException(
