@@ -2,8 +2,8 @@ from datetime import UTC, datetime, timedelta
 from typing import Annotated, TypeAlias
 
 import jwt
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, APIKeyCookie
+from fastapi import Depends, HTTPException, Response, status
+from fastapi.security import APIKeyCookie, OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -34,6 +34,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return password_hash.verify(plain_password, hashed_password)
 
 
+# create access token
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
     expire = datetime.now(UTC) + timedelta(minutes=setting.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -43,6 +44,7 @@ def create_access_token(data: dict) -> str:
     return encoded_jwt
 
 
+# create refresh token
 def create_refresh_token(data: dict) -> str:
     to_encode = data.copy()
     expire = datetime.now(UTC) + timedelta(days=setting.REFRESH_TOKEN_EXPIRE_DAYS)
@@ -52,8 +54,9 @@ def create_refresh_token(data: dict) -> str:
     return encoded_jwt
 
 
+# get current user
 async def get_current_user(
-    access_token: Annotated[str | None, Depends(cookie_scheme)], db: SessionDep = None
+    access_token: Annotated[str | None, Depends(cookie_scheme)], db: SessionDep
 ) -> User:
     if access_token is None:
         raise HTTPException(
@@ -89,6 +92,7 @@ async def get_current_user(
     return user
 
 
+# regenrate access token
 async def regenerate_access_token(body: RefreshTokenRequest) -> dict:
     try:
         token = body.refresh_token
@@ -114,3 +118,43 @@ async def regenerate_access_token(body: RefreshTokenRequest) -> dict:
         "access_token": new_access_token,
         "token_type": "bearer",
     }
+
+
+# set cookies
+def set_auth_cookies(
+    response: Response, access_token: str, refresh_token: str | None = None
+):
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,  # stay hide from js
+        secure=False,  # will be True in production(HTTPS)
+        samesite="lax",
+        max_age=15 * 60,  # 15m in sec
+    )
+
+    if refresh_token:
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,  # stay hide from js
+            secure=False,  # will be True in production
+            samesite="lax",
+            max_age=7 * 24 * 60 * 60,  # 7ds in sec
+        )
+
+
+# remove cookies
+def remove_auth_cookies(response: Response):
+    response.delete_cookie(
+        key="access_token",
+        httponly=True,
+        secure=False,
+        samesite="lax",
+    )
+    response.delete_cookie(
+        key="refresh_token",
+        httponly=True,
+        secure=False,
+        samesite="lax",
+    )

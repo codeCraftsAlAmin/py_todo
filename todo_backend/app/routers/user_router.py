@@ -10,6 +10,8 @@ from ..config.security import (
     create_refresh_token,
     get_current_user,
     regenerate_access_token,
+    remove_auth_cookies,
+    set_auth_cookies,
 )
 from ..models.users_model import User
 from ..repositories.user_repository import UserRepository
@@ -56,24 +58,19 @@ async def login_user(form_data: FormDep, response: Response, db: SessionDep):
     access_token = create_access_token({"sub": str(user.id)})
     refresh_token = create_refresh_token({"sub": str(user.id)})
 
-    response.set_cookie(
-        key="refresh_token",
-        value=refresh_token,
-        httponly=True,  # stay hide from js
-        secure=False,  # will be True in production
-        samesite="lax",
-        max_age=7 * 24 * 60 * 60,  # 7ds in sec
-    )
-    response.set_cookie(
-        key="access_token",
-        value=access_token,
-        httponly=True,  # stay hide from js
-        secure=False,  # will be True in production(HTTPS)
-        samesite="lax",
-        max_age=15 * 60,  # 15m in sec
+    set_auth_cookies(
+        response=response, access_token=access_token, refresh_token=refresh_token
     )
 
     return {"message": "Login successful", "id": user.id, "email": user.email}
+
+
+# logout
+@router.post("/logout", status_code=status.HTTP_200_OK)
+async def logout_user(response: Response):
+
+    remove_auth_cookies(response=response)
+    return {"message": "Logged out successfully"}
 
 
 # get my profile
@@ -144,14 +141,7 @@ async def change_password(
 async def refresh_token(response: Response, token_data: TokenData):
     new_access_token = token_data.get("access_token")
 
-    response.set_cookie(
-        key="access_token",
-        value=new_access_token,
-        httponly=True,  # stay hide from js
-        secure=False,  # will be True in production(HTTPS)
-        samesite="lax",
-        max_age=15 * 60,  # 15m in sec
-    )
+    set_auth_cookies(response=response, access_token=new_access_token)
 
     return {
         "message": "Access token refreshed successfully",
