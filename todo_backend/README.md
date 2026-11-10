@@ -27,7 +27,7 @@ uvicorn app.main:app --reload # after install uvicorn
 
 ## Project structure
 
-```
+```bash
 todo_backend/
 ├── .venv/
 ├── app/
@@ -40,7 +40,7 @@ todo_backend/
 │   │   ├── dpendencies.py
 │   │   ├── security.py
 │   │   ├── exceptions.py
-│   │   ├── logger.py
+│   │   ├── logger.py # works like print()
 │   │   └── settings.py
 │   │
 │   ├── models/
@@ -58,12 +58,12 @@ todo_backend/
 │   │   ├── todo_router.py
 │   │   └── user_router.py
 │   │
-│   ├── services/
+│   ├── services/ # handle business logic
 │   │  ├── __init__.py
 │   │  ├── todo_serivce.py
 │   │  └── user_service.py
 │   │
-│   └── repositroy/
+│   └── repositroy/ # handle db connection
 │       ├── __init__.py
 │       ├── todo_repository.py
 │       └── user_repository.py
