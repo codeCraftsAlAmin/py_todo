@@ -116,7 +116,7 @@ uv add pyjwt
 
 ## To get better performance in Fastapi follow this
 
-# Async Environment & Database Core Setup
+### Async Environment & Database Core Setup
 
 ```bash
 # install required packages (asyncpg, greenlet, loguru)
@@ -131,11 +131,11 @@ uv add asyncpg loguru uvicorn
   - Refactor routes and services to use async def and await with SQLAlchemy's `select()` statements, ensuring transactional boundaries are explicitly handled.
 
 - JWT Authentication & Security
-  Build JWT access/refresh token generation and verification logic.
-  Set tokens to browser cookie
+  - Build JWT access/refresh token generation and verification logic.
+  - Set tokens to the browser cookie
 
 - command for the secret key:
-  We need to install `PyJWT` to generate and verify the JWT tokens in Python:
+  - We need to install `PyJWT` to generate and verify the JWT tokens in Python:
 
 ```bash
 # install pyjwt
@@ -156,11 +156,11 @@ python -c "import secrets; print(secrets.token_hex(32))"
 - User cookie based protected route.
 
 - Work with Todo
-  • Handle todo CRUD operations
-  • Make relation between `TODO` and `USER` tables
+  - Handle todo CRUD operations
+  - Make relation between `TODO` and `USER` tables
 
 - Advanced Production Optimizations
-  • Set up `Gunicorn + Uvicorn + uvloop` workers for production multi-core process management.
-  • Integrate `Redis Caching` for frequent read queries (like user profiles or product lists).
-  • Configure background task queues (Celery + Redis) for heavy resource-intensive tasks.
-  • Apply security enhancements like `Rate Limiting (slowapi)` and `GZipMiddleware` using pure ASGI implementations to protect the event loop.
+  - Set up `Gunicorn + Uvicorn + uvloop` workers for production multi-core process management.
+  - Integrate `Redis Caching` for frequent read queries (like user profiles or product lists).
+  - Configure background task queues (Celery + Redis) for heavy resource-intensive tasks.
+  - Apply security enhancements like `Rate Limiting (slowapi)` and `GZipMiddleware` using pure ASGI implementations to protect the event loop.
