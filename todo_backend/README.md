@@ -6,18 +6,18 @@ This project is primarily focused on learning and practicing FastAPI project str
 
 ## Prerequisites
 
-```
+```bash
 # create backend folder and initialize the UV
 uv init todo_backend --bare
 cd todo_backend
 ```
 
-```
+```bash
 # install fastapi
 uv add "fastapi[standard]"
 ```
 
-```
+```bash
 # run the project
 uv run fastapi dev
 uvicorn app.main:app --reload # after install uvicorn
