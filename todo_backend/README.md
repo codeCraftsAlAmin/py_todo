@@ -20,7 +20,7 @@ uv add "fastapi[standard]"
 ```bash
 # run the project
 uv run fastapi dev
-uvicorn app.main:app --reload # after install uvicorn
+uvicorn app.main:app --reload # to run the backend/server
 ```
 
 ---
@@ -116,7 +116,7 @@ uv add pyjwt
 
 ## To get better performance in Fastapi follow this
 
-- Async Environment & Database Core Setup
+# Async Environment & Database Core Setup
 
 ```bash
 # install required packages (asyncpg, greenlet, loguru)
@@ -126,16 +126,16 @@ uv add asyncpg loguru uvicorn
 - Configure `db.py` with `create_async_engine` and `async_sessionmaker` using PostgreSQL configured with `connection pooling` (pool_size=20, max_overflow=10).
 
 - Async CRUD & Dependency Injection
-  • Implement the asynchronous `get_db` session dependency generator (yield pattern).
-  • Convert database models and migrate schemas to PostgreSQL.
-  • Refactor routes and services to use async def and await with SQLAlchemy's `select()` statements, ensuring transactional boundaries are explicitly handled.
+  - Implement the asynchronous `get_db` session dependency generator (yield pattern).
+  - Convert database models and migrate schemas to PostgreSQL.
+  - Refactor routes and services to use async def and await with SQLAlchemy's `select()` statements, ensuring transactional boundaries are explicitly handled.
 
 - JWT Authentication & Security
-  • Build JWT access/refresh token generation and verification logic.
-  • Set tokens to browser cookie
+  Build JWT access/refresh token generation and verification logic.
+  Set tokens to browser cookie
 
 - command for the secret key:
-  • We need to install `PyJWT` to generate and verify the JWT tokens in Python:
+  We need to install `PyJWT` to generate and verify the JWT tokens in Python:
 
 ```bash
 # install pyjwt
