@@ -36,7 +36,7 @@ todo_backend/
 │   │
 │   ├── config/
 │   │   ├── __init__.py
-|   |   ├── db.py
+│   │   ├── db.py
 │   │   ├── dpendencies.py
 │   │   ├── security.py
 │   │   ├── exceptions.py
@@ -80,15 +80,13 @@ todo_backend/
 
 ## DB setup
 
-To install SQLAlchemy:
-
-```
+```bash
+# to install SQLAlchemy
 uv add sqlalchemy
 ```
 
-If you want to use DB PostgreSQL:
-
-```
+```bash
+# if you want to use DB PostgreSQL:
 uv add psycopg[binary]
 ```
 
@@ -96,27 +94,21 @@ uv add psycopg[binary]
 
 ## Other packages
 
-Use pydantic-settings for application configuration validate/manage:
-
-```
+```bash
+# user pydantic-settings for application configuration validate/manage:
 uv add pydantic-settings
 ```
 
-To add pagination:
-
-```
+```bash
+# to add pagination:
 pip install fastapi-pagination
-```
 
-OR, if the first one doesn't work:
-
-```
+# if the first one doesn't work:
 uv add fastapi-pagination
 ```
 
-To hash password:
-
-```
+```bash
+# to hash password
 uv add pyjwt
 ```
 
