@@ -116,49 +116,51 @@ uv add pyjwt
 
 ## To get better performance in Fastapi follow this
 
-**1**: Async Environment & Database Core Setup
-Install required packages (asyncpg, greenlet).
+- Async Environment & Database Core Setup
 
-```
+```bash
+# install required packages (asyncpg, greenlet, loguru)
 uv add asyncpg loguru uvicorn
 ```
 
-• Configure database.py with create_async_engine and async_sessionmaker using PostgreSQL configured with connection pooling (pool_size=20, max_overflow=10).
+- Configure `db.py` with `create_async_engine` and `async_sessionmaker` using PostgreSQL configured with `connection pooling` (pool_size=20, max_overflow=10).
 
-📌 Phase 2: Async CRUD & Dependency Injection
-• Implement the asynchronous get_db session dependency generator (yield pattern).
-• Convert database models and migrate schemas to PostgreSQL.
-• Refactor routes and services to use async def and await with SQLAlchemy's select() statements, ensuring transactional boundaries are explicitly handled.
+- Async CRUD & Dependency Injection
+  • Implement the asynchronous `get_db` session dependency generator (yield pattern).
+  • Convert database models and migrate schemas to PostgreSQL.
+  • Refactor routes and services to use async def and await with SQLAlchemy's `select()` statements, ensuring transactional boundaries are explicitly handled.
 
-📌 Phase 3: JWT Authentication & Security
-• Build JWT access/refresh token generation and verification logic.
-• Set tokens to browser cookie
+- JWT Authentication & Security
+  • Build JWT access/refresh token generation and verification logic.
+  • Set tokens to browser cookie
 
-command for the secret key:
-We need to install PyJWT to generate and verify the JWT tokens in Python:
+- command for the secret key:
+  • We need to install `PyJWT` to generate and verify the JWT tokens in Python:
 
-```
+```bash
+# install pyjwt
 uv add pyjwt
 ```
 
-Create a random secret key that will be used to sign the JWT tokens.
-To generate a secure random secret key use the command:
+- Create a random secret key that will be used to sign the JWT tokens to generate a secure random secret key use the command:
 
-```
+```bash
+# to generate random secret key
 python -c "import secrets; print(secrets.token_hex(32))"
 ```
 
-• Create isolated authentication endpoints (/register, /login, and PATCH /{id}/change-password).
-• Add protected route dependencies (Depends(get_current_user)) to secure endpoints based on user roles.
+- Create isolated authentication endpoints `(/register, /login, and PATCH /{id}/change-password)`.
 
-• User cookie based protected route.
+- Add protected route dependencies `(Depends(get_current_user))` to secure endpoints based on user roles.
 
-📌 Phase 4: Work with Todo
-• Handle todo CRUD operations
-• Make relation between TODO and USER tables
+- User cookie based protected route.
 
-📌 Phase 5: Advanced Production Optimizations
-• Set up Gunicorn + Uvicorn + uvloop workers for production multi-core process management.
-• Integrate Redis Caching for frequent read queries (like user profiles or product lists).
-• Configure background task queues (Celery + Redis) for heavy resource-intensive tasks.
-• Apply security enhancements like Rate Limiting (slowapi) and GZipMiddleware using pure ASGI implementations to protect the event loop.
+- Work with Todo
+  • Handle todo CRUD operations
+  • Make relation between `TODO` and `USER` tables
+
+- Advanced Production Optimizations
+  • Set up `Gunicorn + Uvicorn + uvloop` workers for production multi-core process management.
+  • Integrate `Redis Caching` for frequent read queries (like user profiles or product lists).
+  • Configure background task queues (Celery + Redis) for heavy resource-intensive tasks.
+  • Apply security enhancements like `Rate Limiting (slowapi)` and `GZipMiddleware` using pure ASGI implementations to protect the event loop.
