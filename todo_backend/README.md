@@ -6,22 +6,19 @@ This project is primarily focused on learning and practicing FastAPI project str
 
 ## Prerequisites
 
-Create backend folder and initialize the UV:
-
 ```
+# create backend folder and initialize the UV
 uv init todo_backend --bare
 cd todo_backend
 ```
 
-Install fastapi:
-
 ```
+# install fastapi
 uv add "fastapi[standard]"
 ```
 
-Run the project:
-
 ```
+# run the project
 uv run fastapi dev
 uvicorn app.main:app --reload # after install uvicorn
 ```
@@ -43,6 +40,7 @@ todo_backend/
 │   │   ├── dpendencies.py
 │   │   ├── security.py
 │   │   ├── exceptions.py
+│   │   ├── logger.py
 │   │   └── settings.py
 │   │
 │   ├── models/
@@ -126,11 +124,11 @@ uv add pyjwt
 
 ## To get better performance in Fastapi follow this
 
-📌 Phase 1: Async Environment & Database Core Setup
-• Install required packages (asyncpg, greenlet).
+**1**: Async Environment & Database Core Setup
+Install required packages (asyncpg, greenlet).
 
 ```
-uv add python-dotenv asyncpg loguru uvicorn
+uv add asyncpg loguru uvicorn
 ```
 
 • Configure database.py with create_async_engine and async_sessionmaker using PostgreSQL configured with connection pooling (pool_size=20, max_overflow=10).
@@ -142,7 +140,7 @@ uv add python-dotenv asyncpg loguru uvicorn
 
 📌 Phase 3: JWT Authentication & Security
 • Build JWT access/refresh token generation and verification logic.
-• Set cookie to the cookie
+• Set tokens to browser cookie
 
 command for the secret key:
 We need to install PyJWT to generate and verify the JWT tokens in Python:
