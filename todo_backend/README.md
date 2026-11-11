@@ -155,12 +155,17 @@ python -c "import secrets; print(secrets.token_hex(32))"
 
 - User cookie based protected route.
 
-- Work with Todo
-  - Handle todo CRUD operations
-  - Make relation between `TODO` and `USER` tables
+### Last Part
 
 - Advanced Production Optimizations
   - Set up `Gunicorn + Uvicorn + uvloop` workers for production multi-core process management.
   - Integrate `Redis Caching` for frequent read queries (like user profiles or product lists).
   - Configure background task queues (Celery + Redis) for heavy resource-intensive tasks.
   - Apply security enhancements like `Rate Limiting (slowapi)` and `GZipMiddleware` using pure ASGI implementations to protect the event loop.
+
+---
+
+## Work with Todo
+
+- Make relation between `TODO` and `USER` tables
+- Handle todo CRUD operations
