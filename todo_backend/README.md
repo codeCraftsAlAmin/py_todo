@@ -169,3 +169,6 @@ python -c "import secrets; print(secrets.token_hex(32))"
 
 - Make relation between `TODO` and `USER` tables
 - Handle todo CRUD operations
+- `CORS` configuration
+
+---

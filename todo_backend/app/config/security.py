@@ -124,11 +124,13 @@ async def regenerate_access_token(body: RefreshTokenRequest) -> dict:
 def set_auth_cookies(
     response: Response, access_token: str, refresh_token: str | None = None
 ):
+    secure = setting.ENVIRONMENT == "production"
+
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,  # stay hide from js
-        secure=False,  # will be True in production(HTTPS)
+        secure=secure,  # will be True in production(HTTPS)
         samesite="lax",
         max_age=15 * 60,  # 15m in sec
     )
@@ -138,7 +140,7 @@ def set_auth_cookies(
             key="refresh_token",
             value=refresh_token,
             httponly=True,  # stay hide from js
-            secure=False,  # will be True in production
+            secure=secure,  # will be True in production
             samesite="lax",
             max_age=7 * 24 * 60 * 60,  # 7ds in sec
         )

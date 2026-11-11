@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
 from loguru import logger
 
@@ -30,8 +31,22 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Todo Application", version="1.0.0", lifespan=lifespan)
-add_pagination(app)
 
+# List of allowed frontend origins
+origins = [
+    "http://localhost:3000",  # frontend url
+    "http://127.0.0.1:8000",  # backend url
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+add_pagination(app)
 
 app.include_router(user_router.router)
 app.include_router(todo_router.router)
