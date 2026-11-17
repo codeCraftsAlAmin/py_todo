@@ -224,7 +224,7 @@ alembic upgrade head
 
 ```bash
 alembic downgrade -1
-# alembic downgrade -2 for go two steps back
+# alembic downgrade -2 to go two steps back
 ```
 
 2. before cancelling the exact migration check the migration history
@@ -236,7 +236,8 @@ alembic history
 copy the history id run the following command
 
 ```bash
-alembic downgrade 75711bdc7312 #75711bdc7312 it will be alembic id
+#75711bdc7312 it will be alembic id
+alembic downgrade 75711bdc7312
 ```
 
 3. if want to kill all the migrations
