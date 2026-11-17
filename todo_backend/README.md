@@ -244,3 +244,5 @@ alembic downgrade 75711bdc7312 #75711bdc7312 it will be alembic id
 ```bash
 alembic downgrade base
 ```
+
+4. delete the `alembic/versions/` file of the migration
