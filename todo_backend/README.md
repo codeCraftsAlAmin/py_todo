@@ -1,4 +1,4 @@
-`## FastAPI Todo Backend
+## FastAPI Todo Backend
 
 A simple Todo backend application built with **FastAPI** and **UV**.
 
