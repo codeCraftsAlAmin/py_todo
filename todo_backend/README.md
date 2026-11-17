@@ -1,4 +1,4 @@
-## FastAPI Todo Backend
+`## FastAPI Todo Backend
 
 A simple Todo backend application built with **FastAPI** and **UV**.
 
@@ -172,3 +172,42 @@ python -c "import secrets; print(secrets.token_hex(32))"
 - `CORS` configuration
 
 ---
+
+### UUID for unique userId:
+
+- import `uuid`
+- change the model, schema, routers, service, and repo(where you worked with user/todo id)
+- migrate the changes
+
+---
+
+## Alembic
+
+```bash
+# install alembic and include in the project
+pip install alembic
+# or
+uv add alembic
+```
+
+```bash
+# create alembic folder structure in project folder
+alembic init alembic
+```
+
+- configure the configuration
+  - go to `alembic.ini` file and replace the db url with the current db url `sqlalchemy.url = postgresql+asyncpg://user:password@localhost/dbname`
+  - go to `env.py` and import the `SQLAlchemy Base` model in this file & set `target_metadata = Base.metadata`
+
+when you are going to add a column or add any changes to your model you have to run this command.
+after running this command almebic will read the python model code and see wether any changes happend or not. if it finds any changes it will create a script inside the `versions/` folder.
+
+```bash
+alembic revision --autogenerate -m "added uuid to user model"
+```
+
+now run this command to apply the changes to your db. alembic will run the new script of the `versions/` folder in the DB & make it updated
+
+```bash
+alembic upgrade head
+```

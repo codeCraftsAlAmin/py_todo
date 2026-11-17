@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi_pagination import Page, Params
 from loguru import logger
 from sqlalchemy import func
@@ -46,7 +48,7 @@ class UserRepository:
             logger.error(f"Something went wrong, Error: {e}")
             raise
 
-    async def get_by_id(self, id: int) -> User | None:
+    async def get_by_id(self, id: uuid.UUID) -> User | None:
         result = await self.db.execute(select(User).where(User.id == id))
         return result.scalars().first()
 

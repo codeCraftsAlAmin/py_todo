@@ -1,3 +1,4 @@
+import uuid
 from typing import Annotated, TypeAlias
 
 from fastapi import APIRouter, Depends, status
@@ -35,7 +36,7 @@ async def get_my_todos(db: SessionDep, current_user: CurrentUser):
 @router.get(
     "/{id}/my-todo", response_model=TodoResponse, status_code=status.HTTP_200_OK
 )
-async def get_todo_by_id(id: int, db: SessionDep, current_user: CurrentUser):
+async def get_todo_by_id(id: uuid.UUID, db: SessionDep, current_user: CurrentUser):
     todo_repo = TodoRepository(db)
     find_todo_service = todo_service.TodoService(todo_repo)
 
@@ -59,7 +60,7 @@ async def create_todo(
 
 # delete todo
 @router.delete("/{id}/delete", status_code=status.HTTP_200_OK)
-async def delete_todo(id: int, db: SessionDep, current_user: CurrentUser):
+async def delete_todo(id: uuid.UUID, db: SessionDep, current_user: CurrentUser):
     todo_repo = TodoRepository(db)
     delete_todo_service = todo_service.TodoService(todo_repo)
 
@@ -72,7 +73,7 @@ async def delete_todo(id: int, db: SessionDep, current_user: CurrentUser):
     "/{id}/update", response_model=TodoResponse, status_code=status.HTTP_200_OK
 )
 async def update_todo(
-    id: int, db: SessionDep, todo_payload: UpdateTodo, current_user: CurrentUser
+    id: uuid.UUID, db: SessionDep, todo_payload: UpdateTodo, current_user: CurrentUser
 ):
     todo_repo = TodoRepository(db)
     update_todo_service = todo_service.TodoService(todo_repo)

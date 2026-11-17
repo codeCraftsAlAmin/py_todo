@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 
 from pydantic import BaseModel, EmailStr, Field
@@ -29,7 +30,7 @@ class UserLogin(BaseModel):
 
 
 class TokenResponse(BaseModel):
-    id: int
+    id: uuid.UUID
     email: str
 
 
@@ -39,7 +40,7 @@ class RefreshTokenRequest(BaseModel):
 
 # Used for API responses (Outgoing Data)
 class UserResponse(UserBase):
-    id: int
+    id: uuid.UUID
     is_deleted: bool
     is_admin: bool
     created_at: datetime

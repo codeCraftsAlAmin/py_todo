@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 from enum import Enum
 
@@ -29,8 +30,8 @@ class UpdateTodo(BaseModel):
 
 
 class TodoResponse(TodoBase):
-    id: int
-    user_id: int
+    id: uuid.UUID
+    user_id: uuid.UUID
     is_deleted: bool
     created_at: datetime
 

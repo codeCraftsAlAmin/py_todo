@@ -1,3 +1,4 @@
+import uuid
 from typing import Annotated, TypeAlias
 
 from fastapi import APIRouter, Depends, Response, status
@@ -91,7 +92,7 @@ async def read_users(db: SessionDep, params: ParamsDep):
 
 # get user by id
 @router.get("/{id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
-async def get_user_by_id(id: int, db: SessionDep):
+async def get_user_by_id(id: uuid.UUID, db: SessionDep):
     user_repo = UserRepository(db)
 
     get_user_service = user_service.UserService(user_repo)

@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi_pagination import Page, Params
 
 from ..config.exceptions import (
@@ -47,7 +49,7 @@ class UserService:
     async def read_user(self, params: Params) -> Page[User]:
         return await self.user_repo.read(params)
 
-    async def get_user_by_id(self, id: int) -> User:
+    async def get_user_by_id(self, id: uuid.UUID) -> User:
         user = await self.user_repo.get_by_id(id=id)
         if user is None:
             raise UserNotFoundError(id=id)
@@ -58,7 +60,7 @@ class UserService:
         # user = await self.user_repo.get_by_id(id=id)
         await self.user_repo.delete(user_data=user)
 
-    async def update_user_info(self, id: int, user_data: UserUpdate) -> User:
+    async def update_user_info(self, id: uuid.UUID, user_data: UserUpdate) -> User:
         user = await self.user_repo.get_by_id(id)
 
         updated_data = user_data.model_dump(exclude_unset=True)
@@ -68,7 +70,7 @@ class UserService:
 
         return await self.user_repo.update(user_data=user)
 
-    async def change_password(self, id: int, passwords: UserChangePassword):
+    async def change_password(self, id: uuid.UUID, passwords: UserChangePassword):
         user = await self.user_repo.get_by_id(id=id)
 
         is_password_correct = verify_password(

@@ -1,3 +1,5 @@
+import uuid
+
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -9,11 +11,11 @@ class TodoRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def own_todos(self, id: int) -> list[Todo | None]:
+    async def own_todos(self, id: uuid.UUID) -> list[Todo | None]:
         result = await self.db.execute(select(Todo).where(Todo.user_id == id))
         return result.scalars().all()
 
-    async def find(self, id: int, user_id: int) -> Todo | None:
+    async def find(self, id: uuid.UUID, user_id: uuid.UUID) -> Todo | None:
         result = await self.db.execute(
             select(Todo).where(Todo.id == id, Todo.user_id == user_id)
         )

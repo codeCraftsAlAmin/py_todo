@@ -1,3 +1,4 @@
+import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Annotated, TypeAlias
 
@@ -84,7 +85,7 @@ async def get_current_user(
         )
 
     user_repo = user_repository.UserRepository(db)
-    user = await user_repo.get_by_id(int(user_id))
+    user = await user_repo.get_by_id(uuid.UUID(user_id))
 
     if user is None:
         raise UserNotFoundError(id=user_id)
@@ -98,7 +99,7 @@ async def regenerate_access_token(body: RefreshTokenRequest) -> dict:
         token = body.refresh_token
 
         payload = jwt.decode(token, setting.SECRET_KEY, algorithms=[setting.ALGORITHM])
-        user_id: int = payload.get("sub")
+        user_id: str = payload.get("sub")
         token_type: str = payload.get("type")
 
         if user_id is None or token_type != "refresh":

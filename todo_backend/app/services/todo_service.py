@@ -1,3 +1,5 @@
+import uuid
+
 from ..config.exceptions import TodoNotFound
 from ..models.todos_model import Todo
 from ..repositories.todo_repository import TodoRepository
@@ -8,18 +10,18 @@ class TodoService:
     def __init__(self, todo_repo: TodoRepository):
         self.todo_repo = todo_repo
 
-    async def get_own_todos(self, id: int) -> list[Todo | None]:
+    async def get_own_todos(self, id: uuid.UUID) -> list[Todo | None]:
         todo = await self.todo_repo.own_todos(id=id)
         return todo
 
-    async def find_by_id(self, id: int, user_id: int) -> Todo | None:
+    async def find_by_id(self, id: uuid.UUID, user_id: uuid.UUID) -> Todo | None:
         todo = await self.todo_repo.find(id=id, user_id=user_id)
 
         if todo is None:
             raise TodoNotFound(id=id)
         return todo
 
-    async def create_todo(self, id: int, todo_payload: TodoCreate) -> Todo:
+    async def create_todo(self, id: uuid.UUID, todo_payload: TodoCreate) -> Todo:
 
         todo = todo_payload.model_dump()
         todo["user_id"] = id
@@ -27,14 +29,16 @@ class TodoService:
         todo_data = Todo(**todo)
         return await self.todo_repo.create(todo_data)
 
-    async def delete_todo(self, id: int, user_id: int):
+    async def delete_todo(self, id: uuid.UUID, user_id: uuid.UUID):
         todo = await self.todo_repo.find(id=id, user_id=user_id)
 
         if todo is None:
             raise TodoNotFound(id=id)
         await self.todo_repo.delete(todo=todo)
 
-    async def update_todo(self, id: int, payload: UpdateTodo, user_id: int) -> Todo:
+    async def update_todo(
+        self, id: uuid.UUID, payload: UpdateTodo, user_id: uuid.UUID
+    ) -> Todo:
         todo = await self.todo_repo.find(id=id, user_id=user_id)
 
         if todo is None:
