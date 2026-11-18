@@ -3,6 +3,7 @@ from logging.config import fileConfig
 
 from alembic import context
 from app.config.db import Base
+from app.config.settings import setting
 from app.models.todos_model import Todo  # noqa: F401
 from app.models.users_model import User  # noqa: F401
 from sqlalchemy import pool
@@ -12,6 +13,13 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+db_url = setting.DATABASE_URL
+
+if db_url:
+    if db_url.startswith("postgresql://"):
+        db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    config.set_main_option("sqlalchemy.url", db_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
