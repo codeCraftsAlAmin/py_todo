@@ -247,3 +247,9 @@ alembic downgrade base
 ```
 
 4. delete the `alembic/versions/` file of the migration
+
+5. to check you current migration
+
+```bash
+alembic current
+```
