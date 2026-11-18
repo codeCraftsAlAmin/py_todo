@@ -28,7 +28,9 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
-
+    is_verified: Mapped[bool] = mapped_column(
+        Boolean, server_default="false", default=False
+    )
     # relationship_table
     todos: Mapped[list[Todo]] = relationship(
         back_populates="user", cascade="all, delete-orphan"

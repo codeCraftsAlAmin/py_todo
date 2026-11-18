@@ -220,36 +220,49 @@ alembic upgrade head
 
 ### Cancelling Migration
 
-1. to cancel the last migration
+```bash
+# 1. before cancelling the exact migration check the migration history
+alembic history
+```
 
 ```bash
+# 2. to cancel the last migration
 alembic downgrade -1
 # alembic downgrade -2 to go two steps back
 ```
 
-2. before cancelling the exact migration check the migration history
+or
 
 ```bash
-alembic history
-```
-
-copy the history id run the following command
-
-```bash
+# copy the history id run the following command
 #75711bdc7312 it will be alembic id
 alembic downgrade 75711bdc7312
 ```
 
-3. if want to kill all the migrations
-
 ```bash
+# 3. if want to kill all the migrations
 alembic downgrade base
 ```
 
 4. delete the `alembic/versions/` file of the migration
 
-5. to check you current migration
-
 ```bash
+# 5. to check you current migration
 alembic current
 ```
+
+---
+
+## Email Verification
+
+```bash
+# install redis to store the otp code
+uv add redis
+```
+
+```bash
+# to send otp through email
+uv add fastapi-mail
+```
+
+**Note**: you need `Upstash Redis` to run redis server. and collect you `mail_password` from `google account`.

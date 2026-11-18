@@ -1,8 +1,8 @@
-"""initial tables with uuid
+"""initial tables with uuid and is_verified
 
-Revision ID: 75711bdc7312
+Revision ID: 39ee026b6563
 Revises: 
-Create Date: 2026-11-17 17:07:50.298323
+Create Date: 2026-11-19 00:08:08.084997
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '75711bdc7312'
+revision: str = '39ee026b6563'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -28,6 +28,7 @@ def upgrade() -> None:
     sa.Column('hashed_password', sa.String(), nullable=False),
     sa.Column('is_deleted', sa.Boolean(), nullable=False),
     sa.Column('is_admin', sa.Boolean(), nullable=False),
+    sa.Column('is_verified', sa.Boolean(), server_default='false', nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('id')
