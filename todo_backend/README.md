@@ -266,8 +266,11 @@ uv add redis
 uv add fastapi-mail
 ```
 
-**Note**: you need `Upstash Redis` to run redis server. and collect you `mail_password` from `google account`.
-**Note**: implemented atomic OTP rate-limiting and brute-force protection via Redis `Lua scripting`
+**Todos**:
+
+- you need `Upstash Redis` to run redis server
+- and collect you `mail_password` from `google account`.
+- implemented atomic OTP rate-limiting and brute-force protection via Redis `Lua scripting`
 
 ### email-otp + redis workflow
 
