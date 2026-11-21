@@ -37,6 +37,7 @@ todo_backend/
 │   ├── config/
 │   │   ├── __init__.py
 │   │   ├── db.py
+│   │   ├── redis.py
 │   │   ├── dpendencies.py
 │   │   ├── security.py
 │   │   ├── exceptions.py
@@ -266,3 +267,54 @@ uv add fastapi-mail
 ```
 
 **Note**: you need `Upstash Redis` to run redis server. and collect you `mail_password` from `google account`.
+**Note**: implemented atomic OTP rate-limiting and brute-force protection via Redis `Lua scripting`
+
+### email-otp + redis workflow
+
+```bash
+todo_backend/
+├── .venv/
+├── app/
+│   ├── __init__.py
+│   ├── main.py
+│   │
+│   ├── config/
+│   │   ├── __init__.py
+│   │   ├── db.py
+│   │   ├── redis.py # 3. set up the email-otp and redis,lua functions
+│   │   ├── dpendencies.py
+│   │   ├── security.py
+│   │   ├── exceptions.py
+│   │   └── settings.py # 2. configure the (.env) secrets
+│   │
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── todos_model.py
+│   │   └── users_model.py
+│   │
+│   ├── schemas/
+│   │   ├── __init__.py
+│   │   ├── users_schema.py # 5. set-up verify-email, resend-otp & message-response schema
+│   │   └── todos_schema.py
+│   │
+│   ├── routers/
+│   │   ├── __init__.py
+│   │   ├── todo_router.py
+│   │   └── user_router.py
+│   │
+│   ├── services/
+│   │  ├── __init__.py
+│   │  ├── todo_serivce.py
+│   │  └── user_service.py # 6. call the function and background_task(send email so fast)
+│   │
+│   ├── utils/
+│   │  ├── __init__.py
+│   │  ├── email_service.py.py # 4. template for email-otp
+│   │
+│   └── repositroy/ # handle db connection
+│       ├── __init__.py
+│       ├── todo_repository.py
+│       └── user_repository.py
+│
+├── .env # 1. include redis_url, secrect and the other things
+```

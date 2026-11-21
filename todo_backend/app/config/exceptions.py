@@ -46,6 +46,27 @@ class PasswordDidntMatch(BaseAppException):
         )
 
 
+class DidntMatchVerifyOtp(BaseAppException):
+    def __init__(self, message):
+        super().__init__(message=message, status_code=status.HTTP_400_BAD_REQUEST)
+
+
+class NotAllowedToResendOtp(BaseAppException):
+    def __init__(self, remaining_seconds):
+        super().__init__(
+            message=f"Please wait {remaining_seconds} seconds before requesting a new OTP.",
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+        )
+
+
+class EmailNotVerifiedError(BaseAppException):
+    def __init__(self):
+        super().__init__(
+            message="Email is not verified. Please verify your email first.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     # handle server error
     @app.exception_handler(BaseAppException)

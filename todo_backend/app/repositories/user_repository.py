@@ -63,7 +63,7 @@ class UserRepository:
 
     async def update(self, user_data: User) -> User:
         try:
-            user = await self.bd.merge(user_data)
+            user = await self.db.merge(user_data)
             await self.db.commit()
             await self.db.refresh(user)
             return user

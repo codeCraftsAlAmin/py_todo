@@ -1,7 +1,7 @@
 import uuid
 from typing import Annotated, TypeAlias
 
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_pagination import Page, Params
 
@@ -17,12 +17,15 @@ from ..config.security import (
 from ..models.users_model import User
 from ..repositories.user_repository import UserRepository
 from ..schemas.users_schema import (
+    MessageResponse,
+    ResendOTPRequest,
     TokenResponse,
     UserChangePassword,
     UserCreate,
     UserLogin,
     UserResponse,
     UserUpdate,
+    VerifyEmailRequest,
 )
 from ..services import user_service
 
@@ -38,12 +41,14 @@ TokenData: TypeAlias = Annotated[dict, Depends(regenerate_access_token)]
 @router.post(
     "/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED
 )
-async def create_user(user: UserCreate, db: SessionDep):
+async def create_user(
+    user: UserCreate, background_tasks: BackgroundTasks, db: SessionDep
+):
 
     user_repo = UserRepository(db)
 
     create_user_service = user_service.UserService(user_repo)
-    return await create_user_service.create_user(user)
+    return await create_user_service.create_user(user, background_tasks)
 
 
 # login user
@@ -64,6 +69,31 @@ async def login_user(form_data: FormDep, response: Response, db: SessionDep):
     )
 
     return {"message": "Login successful", "id": user.id, "email": user.email}
+
+
+# verify_email
+@router.post(
+    "/verify-email", response_model=MessageResponse, status_code=status.HTTP_200_OK
+)
+async def verify_email(payload: VerifyEmailRequest, db: SessionDep):
+    user_repo = UserRepository(db)
+
+    verify_user_otp = user_service.UserService(user_repo)
+    return await verify_user_otp.verify_user_email(email=payload.email, otp=payload.otp)
+
+
+# resend otp
+@router.post(
+    "/resend-otp", response_model=MessageResponse, status_code=status.HTTP_200_OK
+)
+async def resend_otp(
+    payload: ResendOTPRequest, background_tasks: BackgroundTasks, db: SessionDep
+):
+    user_repo = UserRepository(db)
+    resend_otp_service = user_service.UserService(user_repo)
+    return await resend_otp_service.resend_verification_otp(
+        email=payload.email, background_tasks=background_tasks
+    )
 
 
 # logout
