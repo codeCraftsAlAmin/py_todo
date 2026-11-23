@@ -278,24 +278,42 @@ uv add fastapi-mail
 todo_backend/
 ├── app/
 │   ├── config/
-│   │   ├── redis.py # 3. set up the email-otp and redis,lua functions
+│   │   ├── redis.py # 3. only for redis connection
 │   │   ├── exceptions.py # add exceptions while working on service
 │   │   └── settings.py # 2. configure the (.env) secrets
 │   │
 │   │
 │   ├── schemas/
-│   │   ├── users_schema.py # 5. set-up verify-email, resend-otp & message-response schema
+│   │   ├── users_schema.py # 6. set-up verify-email, resend-otp & message-response schema
 │   │
 │   ├── routers/
-│   │   └── user_router.py # 7. now connect the service with user_router
+│   │   └── user_router.py # 8. now connect the service with user_router
 │   │
 │   ├── services/
-│   │  └── user_service.py # 6. call the function and background_task(send email so fast)
+│   │  └── user_service.py # 7. call the function and background_task(send email so fast)
 │   │
 │   ├── utils/
-│   │  ├── email_service.py.py # 4. template for email-otp
+│   │  ├── otp_service.py.py # 4. set up the email-otp and redis,lua functions
+│   │  ├── email_service.py.py # 5. template for email-otp
 │
 ├── .env # 1. include redis_url, secrect and the other things
 ```
 
 ---
+
+## Integrate Global Rate-limiting
+
+### global rate limiting workflow
+
+```bash
+todo_backend/
+├── app/
+│   ├── config/
+│   │   ├── exceptions.py # add exceptions
+│   │
+│   ├── routers/
+│   │   └── user_router.py # 2 set the rate limiter
+│   │
+│   ├── utils/
+│   │  ├── rate_limiter.py.py # 1. redis lua script
+```

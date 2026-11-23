@@ -28,6 +28,7 @@ from ..schemas.users_schema import (
     VerifyEmailRequest,
 )
 from ..services import user_service
+from ..utils.rate_limiter import rate_limiter
 
 router = APIRouter(prefix="/api/auth/users", tags=["Users"])
 
@@ -36,10 +37,16 @@ FormDep: TypeAlias = Annotated[OAuth2PasswordRequestForm, Depends()]
 CurrentUser: TypeAlias = Annotated[User, Depends(get_current_user)]
 TokenData: TypeAlias = Annotated[dict, Depends(regenerate_access_token)]
 
+AuthRateLimit = [Depends(rate_limiter(max_req=5, window_sec=300))]
+LoginRateLimit = [Depends(rate_limiter(max_req=10, window_sec=300))]
+
 
 # create user
 @router.post(
-    "/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED
+    "/register",
+    response_model=UserResponse,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=AuthRateLimit,
 )
 async def create_user(
     user: UserCreate, background_tasks: BackgroundTasks, db: SessionDep
@@ -52,7 +59,12 @@ async def create_user(
 
 
 # login user
-@router.post("/login", response_model=TokenResponse, status_code=status.HTTP_200_OK)
+@router.post(
+    "/login",
+    response_model=TokenResponse,
+    dependencies=LoginRateLimit,
+    status_code=status.HTTP_200_OK,
+)
 async def login_user(form_data: FormDep, response: Response, db: SessionDep):
     user_repo = UserRepository(db)
 
@@ -73,7 +85,10 @@ async def login_user(form_data: FormDep, response: Response, db: SessionDep):
 
 # verify_email
 @router.post(
-    "/verify-email", response_model=MessageResponse, status_code=status.HTTP_200_OK
+    "/verify-email",
+    response_model=MessageResponse,
+    dependencies=LoginRateLimit,
+    status_code=status.HTTP_200_OK,
 )
 async def verify_email(payload: VerifyEmailRequest, db: SessionDep):
     user_repo = UserRepository(db)
@@ -84,7 +99,10 @@ async def verify_email(payload: VerifyEmailRequest, db: SessionDep):
 
 # resend otp
 @router.post(
-    "/resend-otp", response_model=MessageResponse, status_code=status.HTTP_200_OK
+    "/resend-otp",
+    response_model=MessageResponse,
+    dependencies=AuthRateLimit,
+    status_code=status.HTTP_200_OK,
 )
 async def resend_otp(
     payload: ResendOTPRequest, background_tasks: BackgroundTasks, db: SessionDep

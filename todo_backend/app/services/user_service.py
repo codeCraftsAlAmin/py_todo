@@ -11,12 +11,12 @@ from ..config.exceptions import (
     UserAlreadyExistsError,
     UserNotFoundError,
 )
-from ..config.redis import generate_otp, is_resend_allowed, save_otp, verify_otp
 from ..config.security import hash_password, verify_password
 from ..models.users_model import User
 from ..repositories.user_repository import UserRepository
 from ..schemas.users_schema import UserChangePassword, UserCreate, UserLogin, UserUpdate
 from ..utils.email_service import send_verification_otp_email
+from ..utils.otp_service import generate_otp, is_resend_allowed, save_otp, verify_otp
 
 
 class UserService:

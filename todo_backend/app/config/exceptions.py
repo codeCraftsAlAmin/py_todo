@@ -67,6 +67,14 @@ class EmailNotVerifiedError(BaseAppException):
         )
 
 
+class RateLimitExceededError(BaseAppException):
+    def __init__(self, retry_after: int):
+        super().__init__(
+            message=f"Too many requests. Please try again in {retry_after} seconds.",
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+        )
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     # handle server error
     @app.exception_handler(BaseAppException)
