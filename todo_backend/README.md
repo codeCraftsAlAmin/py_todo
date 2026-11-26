@@ -317,4 +317,17 @@ todo_backend/
 │   ├── utils/
 │   │  ├── rate_limiter.py.py # 1. redis lua script
 ```
+
 ---
+
+## Refresh Token Rotation
+
+Before we get started this operation we have keep the following things in our mind:
+
+- verify the current token
+- mark `used` the previous token
+- new toke will be marked as `token hash current`
+- maintain the session status of `token family`
+- handle `concurrent refresh token request` by `redis lua script`
+- token reuse detection(revoke the sesion if old token are reused)
+- multi/single device logout
