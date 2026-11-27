@@ -350,10 +350,10 @@ Before we get started this operation we have to keep the following things in our
 todo_backend/
 ├── app/
 │   ├── config/
-│   │   ├── security.py # refector token's code
+│   │   ├── security.py # 3 refector token's code
 │   │
 │   ├── routers/
-│   │   └── user_router.py # 2 set up logout_single_device & logout_all_devices
+│   │   └── user_router.py # 4 set up logout_single_device & logout_all_devices
 │   │
 │   ├── utils/
 │   │  ├── token_service.py # 2. redis lua script
