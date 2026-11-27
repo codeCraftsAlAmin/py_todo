@@ -361,6 +361,6 @@ todo_backend/
 ├── .env # 1. include abs_ttl, idle_ttl
 ```
 
-**Note:**: keep `single-flight refresh mechanism` in frontend
+**Note:**: for `Concurrent refresh` we need Frontend coordination.
 
 ---
