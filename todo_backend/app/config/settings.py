@@ -20,6 +20,10 @@ class EnvVars(BaseSettings):
     COOLDOWN_SECONDS: int = 60
     MAX_OTP_ATTEMPTS: int = 5
 
+    # refresh token rotaion
+    REFRESH_TOKEN_IDLE_DAYS: int = 7
+    REFRESH_TOKEN_ABSOLUTE_DAYS: int = 30
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 

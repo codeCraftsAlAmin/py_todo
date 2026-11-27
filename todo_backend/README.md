@@ -65,9 +65,16 @@ todo_backend/
 │   │  └── user_service.py
 │   │
 │   └── repositroy/ # handle db connection
-│       ├── __init__.py
-│       ├── todo_repository.py
-│       └── user_repository.py
+│   │   ├── __init__.py
+│   │   ├── todo_repository.py
+│   │   └── user_repository.py
+│   │
+│   └── utils/
+│      ├── __init__.py
+│      ├── otp_service.py
+│      ├── rate_limiter.py
+│      ├── token_service.py
+│      └── email_service.py
 │
 ├── .env
 ├── .env.example
@@ -314,20 +321,46 @@ todo_backend/
 │   ├── routers/
 │   │   └── user_router.py # 2 set the rate limiter
 │   │
+│   ├── services/
+│   │  └── user_service.py # 3
+│   │
 │   ├── utils/
-│   │  ├── rate_limiter.py.py # 1. redis lua script
+│   │  ├── rate_limiter.py # 1. redis lua script
 ```
 
 ---
 
 ## Refresh Token Rotation
 
-Before we get started this operation we have keep the following things in our mind:
+Before we get started this operation we have to keep the following things in our mind:
 
 - verify the current token
 - mark `used` the previous token
-- new toke will be marked as `token hash current`
+- store token as hashed in redis, for that use `hashlib`
 - maintain the session status of `token family`
 - handle `concurrent refresh token request` by `redis lua script`
 - token reuse detection(revoke the sesion if old token are reused)
 - multi/single device logout
+
+---
+
+## refresh token workflow
+
+```bash
+todo_backend/
+├── app/
+│   ├── config/
+│   │   ├── security.py # refector token's code
+│   │
+│   ├── routers/
+│   │   └── user_router.py # 2 set up logout_single_device & logout_all_devices
+│   │
+│   ├── utils/
+│   │  ├── token_service.py # 2. redis lua script
+│
+├── .env # 1. include abs_ttl, idle_ttl
+```
+
+**Note:**: keep `single-flight refresh mechanism` in frontend
+
+---

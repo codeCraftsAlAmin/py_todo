@@ -3,7 +3,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Annotated, TypeAlias
 
 import jwt
-from fastapi import Depends, HTTPException, Response, status
+from fastapi import Depends, HTTPException, Request, Response, status
 from fastapi.security import APIKeyCookie, OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
@@ -14,7 +14,7 @@ from ..config.logger import logger
 from ..config.settings import setting
 from ..models.users_model import User
 from ..repositories import user_repository
-from ..schemas.users_schema import RefreshTokenRequest
+from ..utils.token_service import create_token_family, rotate_family_token
 from .db import get_db
 
 password_hash = PasswordHash.recommended()
@@ -45,14 +45,30 @@ def create_access_token(data: dict) -> str:
     return encoded_jwt
 
 
-# create refresh token
-def create_refresh_token(data: dict) -> str:
-    to_encode = data.copy()
-    expire = datetime.now(UTC) + timedelta(days=setting.REFRESH_TOKEN_EXPIRE_DAYS)
-    to_encode.update({"exp": expire, "type": "refresh"})
-    encoded_jwt = jwt.encode(to_encode, setting.SECRET_KEY, setting.ALGORITHM)
+# to use refresh in redis
+def _build_refresh_jwt(user_id: str, family_id: str, ttl_seconds: int) -> str:
+    expire = datetime.now(UTC) + timedelta(seconds=ttl_seconds)
+    payload = {
+        "sub": user_id,
+        "fid": family_id,
+        "jti": str(uuid.uuid4()),  # to confirm unique hash in each rotaion
+        "exp": expire,
+        "type": "refresh",
+    }
+    return jwt.encode(payload, setting.SECRET_KEY, setting.ALGORITHM)
 
-    return encoded_jwt
+
+# create refresh token
+async def create_refresh_token(data: dict) -> str:
+    user_id = str(data["sub"])
+    family_id = str(uuid.uuid4())
+    idle_ttl = setting.REFRESH_TOKEN_IDLE_DAYS * 24 * 60 * 60
+
+    raw_refresh_token = _build_refresh_jwt(user_id, family_id, idle_ttl)
+    await create_token_family(
+        user_id=user_id, family_id=family_id, raw_refresh_token=raw_refresh_token
+    )
+    return raw_refresh_token
 
 
 # get current user
@@ -84,8 +100,16 @@ async def get_current_user(
             detail="Could not validate credentials",
         )
 
+    try:
+        user_uuid = uuid.UUID(str(user_id))
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid user identifier in token",
+        )
+
     user_repo = user_repository.UserRepository(db)
-    user = await user_repo.get_by_id(uuid.UUID(user_id))
+    user = await user_repo.get_by_id(user_uuid)
 
     if user is None:
         raise UserNotFoundError(id=user_id)
@@ -94,36 +118,79 @@ async def get_current_user(
 
 
 # regenrate access token
-async def regenerate_access_token(body: RefreshTokenRequest) -> dict:
+async def regenerate_access_token(request: Request) -> dict[str, str]:
+    submitted_refresh_token = request.cookies.get("refresh_token")
+    if not submitted_refresh_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token missing"
+        )
     try:
-        token = body.refresh_token
+        payload = jwt.decode(
+            submitted_refresh_token, setting.SECRET_KEY, algorithms=[setting.ALGORITHM]
+        )
+        user_id: str | None = payload.get("sub")
+        token_type: str | None = payload.get("type")
+        family_id: str | None = payload.get("fid")
 
-        payload = jwt.decode(token, setting.SECRET_KEY, algorithms=[setting.ALGORITHM])
-        user_id: str = payload.get("sub")
-        token_type: str = payload.get("type")
-
-        if user_id is None or token_type != "refresh":
+        if not family_id or not user_id or token_type != "refresh":
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Could not validate credentials",
+                detail="Invalid refresh token structure",
             )
-    except InvalidTokenError as e:
-        logger.error(f"Token validation failed. Error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
+
+        try:
+            uuid.UUID(str(user_id))
+            uuid.UUID(str(family_id))
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Malformed token identifiers",
+            )
+
+        idle_ttl = setting.REFRESH_TOKEN_IDLE_DAYS * 24 * 60 * 60
+        new_refresh_token = _build_refresh_jwt(
+            user_id=user_id, family_id=family_id, ttl_seconds=idle_ttl
         )
 
-    new_access_token = create_access_token(data={"sub": str(user_id)})
-    return {
-        "access_token": new_access_token,
-        "token_type": "bearer",
-    }
+        # atomic rotaition & reuse detection
+        is_valid, message, effective_ttl = await rotate_family_token(
+            user_id,
+            family_id,
+            submitted_refresh_token,
+            new_raw_token=new_refresh_token,
+        )
+
+        if not is_valid:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail=message
+            )
+
+        new_access_token = create_access_token(data={"sub": str(user_id)})
+        return {
+            "access_token": new_access_token,
+            "refresh_token": new_refresh_token,
+            "refresh_max_age": effective_ttl,
+            "token_type": "bearer",
+        }
+
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token expired. Please log in again.",
+        )
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token",
+        )
 
 
 # set cookies
 def set_auth_cookies(
-    response: Response, access_token: str, refresh_token: str | None = None
+    response: Response,
+    access_token: str,
+    refresh_token: str | None = None,
+    refresh_max_age: int | None = None,
 ):
     secure = setting.ENVIRONMENT == "production"
 
@@ -133,31 +200,34 @@ def set_auth_cookies(
         httponly=True,  # stay hide from js
         secure=secure,  # will be True in production(HTTPS)
         samesite="lax",
-        max_age=15 * 60,  # 15m in sec
+        max_age=setting.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
 
     if refresh_token:
+        max_age = refresh_max_age or (setting.REFRESH_TOKEN_IDLE_DAYS * 24 * 60 * 60)
         response.set_cookie(
             key="refresh_token",
             value=refresh_token,
             httponly=True,  # stay hide from js
             secure=secure,  # will be True in production
             samesite="lax",
-            max_age=7 * 24 * 60 * 60,  # 7ds in sec
+            max_age=max_age,
         )
 
 
 # remove cookies
 def remove_auth_cookies(response: Response):
+    secure = setting.ENVIRONMENT == "production"
+
     response.delete_cookie(
         key="access_token",
         httponly=True,
-        secure=False,
+        secure=secure,
         samesite="lax",
     )
     response.delete_cookie(
         key="refresh_token",
         httponly=True,
-        secure=False,
+        secure=secure,
         samesite="lax",
     )

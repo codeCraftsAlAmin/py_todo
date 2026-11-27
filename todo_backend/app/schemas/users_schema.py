@@ -34,10 +34,6 @@ class TokenResponse(BaseModel):
     email: str
 
 
-class RefreshTokenRequest(BaseModel):
-    refresh_token: str = Field(..., description="The refresh token")
-
-
 class VerifyEmailRequest(BaseModel):
     email: EmailStr
     otp: str = Field(..., min_length=6, max_length=6, pattern=r"^\d{6}$")
